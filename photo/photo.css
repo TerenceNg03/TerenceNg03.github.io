@@ -9,13 +9,6 @@
     object-fit: cover;
 }
 
-.image>svg {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
 .intro {
 	margin: 3em 3em;
 }
@@ -51,10 +44,6 @@
 @media only screen and (max-width: 600px) {
 	.image > img{
 		width: 100vw;
-	}
-
-	.image > svg {
-		width: 50vw;
 	}
 
 	.intro {

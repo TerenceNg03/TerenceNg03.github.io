@@ -1,8 +1,8 @@
-function insertLogo(cata='') {
+function insertLogo(cata = '') {
 	document.write(`
 	<div class="HeadTitle">
 		<div class="HeadName`)
-	if(cata==''){
+	if (cata == '') {
 		document.write(`NoANI`)
 	}
 	document.write(`">
@@ -21,11 +21,11 @@ function insertLogo(cata='') {
 					<text class="head" x="160" y="70">Terence Ng</_text>
 				</svg>
 		</div>`)
-	if(cata){
+	if (cata) {
 		document.write(`
 		<div class="cata">
 			<span class='HeadSplit'>|</span>
-			<span class='HeadPart'>`,cata,`</span>
+			<span class='HeadPart'>`, cata, `</span>
 		</div>
 			`)
 	}
@@ -34,16 +34,16 @@ function insertLogo(cata='') {
 		`)
 }
 
-function insertNavbar(base='') {
+function insertNavbar(base = '') {
 	document.write(`
 	<div class="navbarContainer">
 		<div class="navbar">
-			<a href="`,base,`index.html">Home</a>
-			<a href="`,base,`blog/blog.html">Blogs</a>
-			<a href="`,base,`photo/photo.html">Photos</a>
-			<a href="`,base,`prose/prose.html">Proses</a>
-			<a href="`,base,`poem/poem.html">Poems</a>
-			<a href="#About">About</a>
+			<a href="`, base, `index.html">Home</a>
+			<a href="`, base, `blog/blog.html">Blogs</a>
+			<a href="`, base, `photo/photo.html">Photos</a>
+			<a href="`, base, `prose/prose.html">Proses</a>
+			<a href="`, base, `poem/poem.html">Poems</a>
+			<a href="#" onclick="return false;" onmousedown="autoScrollTo('About');">About</a>
 		</div>
 	</div>`);
 }
@@ -73,5 +73,11 @@ function insertFooter() {
 
 
 document.write(`
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 `)
+
+function autoScrollTo(el) {
+    var top = $("#" + el).offset().top;
+    $("html, body").animate({ scrollTop: top }, 1000);
+}
