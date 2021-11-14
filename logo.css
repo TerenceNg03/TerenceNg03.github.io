@@ -1,0 +1,61 @@
+/**** Animation ****/
+@keyframes slideInFromLeft {
+    0% {
+        transform: translateX(-10%);
+		opacity: 0%;
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInFromRight{
+    0% {
+        transform: translateX(10%);
+		opacity: 0%;
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+/******* Heading *********/
+/* HeadTitle */
+.HeadTitle {
+    display: flex;
+    justify-content: center;
+    margin: 20px 20px;
+}
+
+.HeadTitle a {
+    display: inline-block;
+    overflow: visible;
+}
+
+.HeadName {
+    animation: 1.5s ease-out 0s 1 slideInFromLeft;
+}
+
+.cata {
+    font-family: 'Courier New', Courier, monospace;
+    margin-left: 1em;
+    color: #555;
+    display: flex;
+}
+
+.cata .HeadPart {
+	animation: 1.5s ease-out 0s 1 slideInFromRight;
+    font-size: 50px;
+    align-self: flex-end;
+}
+
+.cata .HeadSplit {
+    font-size: 80px;
+    align-self: flex-end;
+}
+
+svg:not(:root) {
+    overflow: visible;
+}
