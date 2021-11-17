@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Terence Ng - Blog</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="blog.css">
+	<link rel="stylesheet" href="../master.css">
+	<script src="../master.js"></script>
+	<link rel="stylesheet" href="./highlight/styles/default.min.css">
+	<script src="./highlight/highlight.min.js"></script>
+	<script>
+		hljs.highlightAll();
+		window.onload = function() {
+			// remove leading linebreaks from code blocks.
+			var pre = document.getElementsByTagName("code");
+			for (var i = 0, len = pre.length; i < len; i++) {
+				var text = pre[i].firstChild.nodeValue;
+				pre[i].firstChild.nodeValue = text.replace(/^\n+|\n+$/g, "");
+			}
+		}
+	</script>
+</head>
+
+<body>
+
+	<!--Header-->
+	<div style="display: flex;justify-content: center;">
+		<script>
+			insertLogo('Blog')
+		</script>
+	</div>
+	<script>
+		insertNavbar('../')
+	</script>
+
+	<div class="blog_container">
+		<h1>Title</h1>
+		<h2>SubTitle</h2>
+		<!-- code highlight -->
+		<pre>
+<code class="language-c">
+int main(){
+	printf("Hello, world\n");
+}
+</code> 
+		</pre>
+	</div>
+
+
+	<!--Footer-->
+	<script>
+		insertFooter()
+	</script>
+</body>
+
+</html>

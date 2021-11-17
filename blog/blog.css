@@ -11,12 +11,13 @@
 
 .intro {
 	margin: 3em 3em;
+	font-family: Arial, Helvetica, sans-serif;
 }
 .intro p{
-	font-size: 125%;
+	font-size: 150%;
 	text-align: center;
 	color: #555;
-	letter-spacing: 0.2em;
+	word-spacing: 0.2em;
 	line-height: 1.5em;
 }
 
@@ -27,7 +28,8 @@
 .blog_list {
 	text-align: left;
 	font-size: 125%;
-	transform: translateX(3em);
+	transform: translateX(0em);
+	font-family: Arial, Helvetica, sans-serif;
 }
 
 .blog_list .num{
@@ -46,27 +48,90 @@
     text-shadow: 0 0 .2em darkgray, 0 0 .5em darkgray;
 }
 
-.blog_title {
-	font-size: 200%;
-	text-align: center;
-	color: #555;
-	letter-spacing: 0.075em;
-	margin: .5em .5em;
+.blog_container {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	margin: auto;
 }
 
-.blog_content {
-	font-size: 125%;
-	text-align: center;
+.blog_container > *{
+	text-align: left;
 	color: #555;
-	letter-spacing: 0.2em;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+pre {
+	tab-size: 4;
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+code {
+	font-size: 120%;
+	line-height: 1.8em;
+}
+
+.blog_container h1{
+	text-align: center;
+	font-size: 200%;
+	font-weight: normal;
+}
+
+.blog_container h2{
+	font-size: 160%;
+	font-weight: normal;
+	
+}
+
+.blog_container p{
 	line-height: 1.5em;
-	margin: 1.5em 1.5em;
+	word-spacing: 0.1em;
+	font-size: 120%;
+	text-align: justify;
+	hyphens: auto;
+	margin-top: .5em;
+	margin-bottom: .5em;
+}
+
+.blog_container p a{
+	text-decoration: none;
+	font: bold;
+	color: dodgerblue;
+}
+
+.blog_container p a:hover{
+	text-decoration: underline;
+}
+
+.code {
+	background-color: #DEDEDE;
+	color: #4D4D4D;
+	border-radius: 0.2em;
+	padding-left: 0.3em;
+	padding-right: 0.3em;
+	padding: 0.05em 0.3em;
+}
+
+ul {
+	list-style: circle;
+}
+
+li {
+	line-height: 1.5em;
+	font-size: 120%;
 }
 
 @media only screen and (min-width: 1000px) {
 	.image > img{
 		max-width: 1000px;
 	}
+}
+
+@media only screen and (min-width: 600px) {
+    .blog_container{
+        max-width: 600px;
+    }
 }
 
 @media only screen and (max-width: 600px) {
@@ -85,4 +150,13 @@
 	.blogs .blog_list {
 		transform: translateX(1em) ;
 	}
+
+	code {
+		font-size: 2.5vw;
+	}
+	
+	.blog_container{
+		max-width: 85vw;
+	}
+
 }
