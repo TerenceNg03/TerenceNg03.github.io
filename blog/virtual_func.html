@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Terence Ng - Blog</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="blog.css">
+	<link rel="stylesheet" href="../master.css">
+	<script src="../master.js"></script>
+	<link rel="stylesheet" href="./highlight/styles/default.min.css">
+	<script src="./highlight/highlight.min.js"></script>
+	<script>
+		hljs.highlightAll();
+		window.onload = function() {
+			// remove leading linebreaks from code blocks.
+			var pre = document.getElementsByTagName("code");
+			for (var i = 0, len = pre.length; i < len; i++) {
+				var text = pre[i].firstChild.nodeValue;
+				pre[i].firstChild.nodeValue = text.replace(/^\n+|\n+$/g, "");
+			}
+		}
+	</script>
+</head>
+
+<body>
+
+	<!--Header-->
+	<div style="display: flex;justify-content: center;">
+		<script>
+			insertLogo('Blog')
+		</script>
+	</div>
+	<script>
+		insertNavbar('../')
+	</script>
+
+	<div class="blog_container">
+		<h1>Virtual Function - Good or Bad</h1>
+		<h2>What is Virtual Function?</h2>
+		<p>According to <a href="https://en.cppreference.com/w/cpp/language/virtual" target="_Blank">cppreference.com</a>, virtual functions are member functions whose behavior can be overridden in derived classes. This is especially useful when you are trying to put base class and different derived class into a container or as a return value, in which case all we can do is use a base class pointer reference a derived class type.</p>
+		<p>Most compilers implement virtual function with VTable. VTable is a table stores the address of all virtual functions. Thus, a call of virtual function will result in two memory accesses. Compared to normal function call which only requires a single memory access, this is obviously not very efficient and potentially not very cache friendly.</p>
+
+		<h2>Performance Issue</h2>
+		<p>Virtual functions has a really well-known performance issue. Such an issue is especially noticeable when the VTable is considerably large. Actually, both compilation time and execution time. For execution time there are mainly two reasons. Firstly, it requires two memory accesses. Another reason is that it effectively prevent compiler to inline function which potentially leads to some crazy optimizations. Let us test it for ourselves.</p>
+
+		<p>First, set up two versions of class, one with virtual function and one without.</p>
+		<pre>
+<code class="language-cpp">
+#ifdef VIR
+class Base{
+public:
+    int i=0;
+    virtual void increase(void){i++;};
+};
+
+template &lt;int inc&gt;
+class Derive : public Base{
+    virtual void increase(void){i+=inc;};
+};
+
+#else
+class Base{
+public:
+    int i=0;
+    void increase(void){i++;};
+};
+
+template &lt;int inc&gt;
+class Derive : public Base{
+    void increase(void){i+=inc;};
+};
+#endif</code> 
+		</pre>
+
+	<p>In order to create a large VTable, I will exploit some template meta-programming. Note that template meta-programming usually leads to a very long compile time.</p>
+
+	<pre>
+<code class="language-cpp">
+template &lt;int cnt&gt;
+class test{
+public:
+    Derive&lt;cnt&gt; d;
+    test&lt;cnt&gt;* t;
+    test(void){t = new test&lt;cnt&gt;();}
+#ifdef VIR
+    void run(){Base*b = &d;b->increase();t->run();}
+#else
+	void run(){d.increase();t->run();}
+#endif
+};
+
+template &lt;&gt;
+class test&lt;0&gt;{
+public:
+    Derive&lt;0&gt; d;
+    test&lt;0&gt;* t;
+    test(){t = NULL;}
+    void run(){}
+};
+
+int main(){
+    test<1024> test_case;
+    test_case.run();
+}</code>
+	</pre>
+
+	<p>Here we generate 1024 different derived classes and let us test how long does it take to compile and run.</p>
+
+	<pre>
+<code class="language-plaintext">
+% time clang++ -DVIR performance.cpp 
+real	1187ms
+user	1123ms
+sys		61ms
+% time ./a.out                  
+real	1173ms
+user	6ms
+sys		2ms
+% time clang++ performance.cpp 
+real	1078ms
+user	1019ms
+sys		57ms
+% time ./a.out            
+real	945ms
+user	4ms
+sys		2ms</code>	
+	</pre>
+
+	<p>The result illustrates that virtual function is slowing down both compiler and the output program noticeably, with about 100ms and nearly 200ms respectively. In reality, this is likely causing an issue as cpp is usually performance demanding and slow to compile.</p>
+
+	<h2>Is there Any Alternatives?</h2>
+
+	<p>In short, the answer is yes and no. There is indeed some ways to get around virtual functions. But I do not think there is a perfect way to do this. Alternatives generally include using function pointers or a manual written switch statements or a template. Here I will list some of the possible solutions.</p>
+
+	<h2>Switch Solution</h2>
+
+	<pre>
+<code class="language-cpp">
+class Base{
+    enum class type {t1,t2};
+    type T;
+    void func(){
+        switch (T) {
+            case type::t1:
+                do1();
+                break;
+            case type::t2:
+                do2();
+                break;
+        }
+    }
+};</code>
+	</pre>
+
+	<p>This is relatively simple. Use a tag to store class type and call different functions accordingly. However, this is more like you are writing plain c code rather than an OOP programming language. This is kind of tedious but you do gain some performance as inline function is possible.</p>
+
+	<h2>Template Solution</h2>
+
+	<pre>
+<code class="language-cpp">
+template <class Derived>
+class Base{
+    int i;
+    void func(){i++;};
+};
+class Derive{};
+template&lt;&gt; void Base&lt;Derive&gt;::func(){i+=2;}</code>
+	</pre>
+
+	<p>Template solution includes make base class a template class and later specialization template for derived class. However, this does not allow you to mix derived classes in a container.</p>
+
+	<h2>Function Pointer Solution</h2>
+	<pre>
+<code class="language-cpp">
+class Base{
+public:
+    int i;
+    Base(){
+        i=0;increase = &_increase;
+    }
+    void (* increase)(Base&b);
+    static void _increase(Base&b){b.i=b.i+1;}
+};
+
+class Derive: public Base{
+public:
+    Derive(){
+        increase = &_increase;
+    };
+    static void _increase(Base&b){b.i=b.i+2;}
+};</code>
+	</pre>
+
+	<p>Here, we need to store a funtion pointer to the orginal virtual function. And change this pointer according to different class. This function must be static so its type is <span class="code">void(*)(Base&amp;b)</span> instead of <span class="code">void(Derive::*)(Base&amp;b)</span> and accept an object as one of the parameters. This allows you to use pointer to base class to call derived class functions, yet this funtion can only perform operate on base class members.</p>
+
+	</div>
+	<!--Footer-->
+	<script>
+		insertFooter()
+	</script>
+</body>
+
+</html>
