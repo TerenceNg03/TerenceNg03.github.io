@@ -9,6 +9,8 @@
 	<script src="../master.js"></script>
 	<link rel="stylesheet" href="./highlight/styles/default.min.css">
 	<script src="./highlight/highlight.min.js"></script>
+	<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+	<script src="catalog.js" defer></script>
 	<script>
 		hljs.highlightAll();
 		window.onload = function() {
@@ -44,7 +46,7 @@
 		<h2>Flex &amp; Bison and c++</h2>
 		<p>Flex &amp; Bison have been around for more than 40 years. When they first born, there is even no cpp. So at first they only generate parser in c which includes lot of global variables and usually can not be reused. Unfortunately, today even they are officially support cpp, most of the tutorial is still using c code. And that is why I want to do this tutorial to assist you switch to cpp. Here I suppose you have master the basic usage and if you are not you may refer to <a href="http://www.capsl.udel.edu/courses/cpeg421/2012/slides/Tutorial-Flex_Bison.pdf"  target="_blank" rel="noopener noreferrer">this article</a>.</p>
 
-		<h2>Structure</h2>
+		<h2>Setup Driver</h2>
 		<p>The outline of our parser will be like this.<br><b>Note: All of the codes are available at the end of this article.</b></p>
 		<pre>
 <code class="language-cpp">

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Terence Ng - Blog</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="blog.css">
+	<link rel="stylesheet" href="../master.css">
+	<script src="../master.js"></script>
+	<link rel="stylesheet" href="./highlight/styles/default.min.css">
+	<script src="./highlight/highlight.min.js"></script>
+	<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+	<script src="catalog.js" defer></script>
+	<script>
+		hljs.highlightAll();
+		window.onload = function() {
+			// remove leading linebreaks from code blocks.
+			var pre = document.getElementsByTagName("code");
+			for (var i = 0, len = pre.length; i < len; i++) {
+				var text = pre[i].firstChild.nodeValue;
+				pre[i].firstChild.nodeValue = text.replace(/^\n+|\n+$/g, "");
+			}
+		}
+	</script>
+</head>
+
+<body>
+
+	<!--Header-->
+	<div style="display: flex;justify-content: center;">
+		<script>
+			insertLogo('Blog')
+		</script>
+	</div>
+	<script>
+		insertNavbar('../')
+	</script>
+
+	<div class="blog_container">
+		<h1>Functional Programming in C++ (Countinued)</h1>
+
+		<p><b>Check out previous <a href="functional_cpp.html">blog</a> if you have not read it yet.</b></p>
+		<h2>What is std::function?</h2>
+
+		<p>According to <a href="https://en.cppreference.com/w/cpp/utility/functional/" target="_blank">cppreference</a>, instances of <span class="code">std::function</span> can store, copy, and invoke <b>any CopyConstructible Callable</b> target. This includes lambda expression, function pointers, and even member functions. Here is an example use <span class="code">std::function</span> instead of traditional function pointer.</p>
+
+		<pre>
+<code class="language-cpp">
+int foo(){return 0;}
+/* C style */
+int (*fp)(int) = foo;
+/* std::function */
+std::function&lt;int(int)&gt;func = foo;
+</code> 
+		</pre>
+
+		<h2>Create Callback in C++</h2>
+
+		<p>If you are familiar with Javascript, you may have known the concept of Callback.</p>
+
+		<pre>
+<code class="language-javascript">
+function Callback() {
+	console.log("I am executed!");
+}
+Callback();
+</code>
+		</pre>
+
+		<p>In brief, a Callback is a function that passed to another function as parameter and the function is not executed until the callback is called. Before <span class="code">std::function</span> is introduced, this is achieved through interface and abstract classes, which can sometimes be a dirty solution and cause a lot of chaos. For example, we can create a call back for a class method without using interface.</p>
+
+		<pre>
+<code class="language-cpp">
+class executer{
+public:
+    int exec(std::function&lt;int(int)&gt; f){
+        return f(1);
+    }
+};
+
+int foo(int a){return a;}
+
+class bar{
+public:
+    int run(int a){return a;}
+};
+
+int main(){
+    executer e;
+    bar s;
+    e.exec(foo);
+    using std::placeholders::_1;
+    e.exec(std::bind(&bar::run, &s, _1));
+}
+</code>
+		</pre>
+
+		<p>In the above example, if callback is not used we can still run <span class="code">foo</span> by passing a function pointer. However, to execute <span class="code">bar::run</span> we will have to inherit <span class="code">executer</span> so that it will accept <span class="code">bar</span> as parameter since non-static member function can not be referenced.</p>
+
+		<h2>Usage of std::bind</h2>
+
+		<p>The function of <span class="code">std::bind</span> is to bind parameters and the function to create a new functor. It is also able to only bind part of the parameter list and even reorder the parameter by using <span class="code">std::placeholders</span>.</p>
+
+		<pre>
+<code class="language-cpp">
+int foo(int a, int b){return a-b;}
+
+class Bar{
+public:
+    int run(int a){return a;}
+};
+
+int main(){
+	/* _1 _2 ... _N is from here */
+    using namespace std::placeholders;
+	/* foo(b, a) */
+    auto f1 = std::bind(foo,_2,_1);
+	/* foo(a, 3) */
+    auto f2 = std::bind(foo,_1, 3);	
+	/* foo(1, 3) */
+    auto f3 = std::bind(foo, 1, 3);
+	/* return bar.run(a) */
+	Bar b;
+    auto f4 = std::bind(&Bar::run, &b, _1);
+	/* print 1 0 -2 6*/
+	printf("%d %d %d %d",
+           f1(1,2), f2(3,1), f3(-1,-2, 5), f4(6));
+}
+</code>
+		</pre>
+
+		<p><span class="code">std::bind</span> accepts both placeholders and real objects. If it binds a placeholder to function, You have to pass the parameter when calling the generated function. Any other parameters are ignored. It is also possible to bind a member function with the actually class object.</p>
+	</div>
+
+
+	<!--Footer-->
+	<script>
+		insertFooter()
+	</script>
+</body>
+
+</html>

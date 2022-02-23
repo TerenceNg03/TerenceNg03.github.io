@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Terence Ng - Blog</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="blog.css">
+	<link rel="stylesheet" href="../master.css">
+	<script src="../master.js"></script>
+	<link rel="stylesheet" href="./highlight/styles/default.min.css">
+	<script src="./highlight/highlight.min.js"></script>
+	<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+	<script src="catalog.js" defer></script>
+	<script>
+		hljs.highlightAll();
+		window.onload = function() {
+			// remove leading linebreaks from code blocks.
+			var pre = document.getElementsByTagName("code");
+			for (var i = 0, len = pre.length; i < len; i++) {
+				var text = pre[i].firstChild.nodeValue;
+				pre[i].firstChild.nodeValue = text.replace(/^\n+|\n+$/g, "");
+			}
+		}
+	</script>
+</head>
+
+<body>
+
+	<!--Header-->
+	<div style="display: flex;justify-content: center;">
+		<script>
+			insertLogo('Blog')
+		</script>
+	</div>
+	<script>
+		insertNavbar('../')
+	</script>
+
+	<div class="blog_container">
+		<h1>Functional Programming in C++</h1>
+		<h2>What is functional programming?</h2>
+		<p>Functional programming is a programming paradigm like Object-Oriented Programming(OOP). In functional programming we focus on functions. Functions can be a parameter or return value of another function. See <a href="https://en.wikipedia.org/wiki/Functional_programming" target="_blank">Wikipedia</a> for more information.</p>
+
+		<h2>Lambda Expression</h2>
+		<p>Lambda AKA anonymous function is a special kind of function that does not have a name. It is especially useful when a temporary function is needed. If you have ever used python, you may be familiar with this python code.</p>
+
+		<!-- code highlight -->
+		<pre>
+<code class="language-python">
+lambda x: x if x>=0 else -x
+</code> 
+		</pre>
+
+		<p>This line of code return the absolute value of input variable x. Since C++11, we can do this.</p>
+
+		<pre>
+<code class="language-cpp">
+[=](double x)->int{return x>=0? x:-x ;};
+</code> 
+		</pre>
+
+		<h3>Lambda Expression - Grammar</h3>
+		<p>Now let's analyze what does this line of code means.</p>
+		<p><span class='code'>[=]</span> means that this lambda capture all outside variables by value. <b>Note that all variables that are captured by value is immutable by default.</b> All possible values here are:
+		<ul>
+			<li><span class="code">[  ]</span>: Do not capture any variable.</li>
+			<li><span class="code">[=]</span>: Capture all variables by value.</li>
+			<li><span class="code">[&amp;]</span>: Capture all variables by reference.</li>
+			<li><span class="code">[=,&amp;y]</span>: Capture <span class="code">y</span> by reference and any other one by value.</li>
+			<li><span class="code">[&amp;,x]</span>: Capture <span class="code">x</span> by value and any other ones by reference.</li>
+			<li><span class="code">[&amp;x,y]</span>: Specific how to capture <span class="code">x</span> and <span class="code">y</span>. Other variables are not allowed to be captured.</li>
+		</ul></p>
+
+		<p><span class="code">(double)</span> is the list of parameters that should be passed to this lambda expression. <b>In C++14, auto keyword is allowed here, which gives lambda function the ability to perform duck typing.</b></p>
+		
+		<p><span class="code">->int</span> specific that this function return type is <span class="code">int</span>. <b>Note that this is not voluntary. The function must return an int if declared.</b> Some other options are also allowed here. All the options including return type can be omitted.
+		<ul>
+			<li><span class="code">mutable</span>: Allow modification performed on variables that are captured by value.</li>
+			<li><span class="code">noexcept</span>: The same how it is used in a normal function.</li>
+			<li><span class="code">throw()</span>: The same how it is used in a normal function.</li>
+			<li><span class="code">->int</span>: Specific return type.</li>
+		</ul>
+		</p>
+
+		<h3>Lambda Expression - Usage</h3>
+		<p>For lambda expressions, it can be stored in an variable or <span class="code">std::function</span>. Or it can be called instantly or passed directly to a function that accepted it as parameter, <span class="code">std::sort</span> for instance.</p>
+
+		<pre>
+<code class="language-cpp">
+/* Save in an auto variable */
+auto lambda1 = [](double x){return x>=0? 1:-1 ;};
+/* Construct std::function */
+std::function&lt;int(int)&gt; lambda = 
+	[](int x) { return x>=0? 1:-1 ; };
+/* Directly called */
+int i = [](double x){return x>=0? 1:-1 ;}(9);
+/* Pass to function as parameter */
+std::sort(v.begin(), v.end(), 
+	[](auto x, auto y){return x>y;});
+</code> 
+		</pre>
+
+		<h2>Lambda expression as a parameter</h2>
+		<p>Here you have two choices. You may either use <span class="code">std::function</span> or use a template.</p>
+
+		<pre>
+<code class="language-cpp">
+/* std::function solution */
+void f_(std::function&lt;int(int)&gt; lambda)
+	{/* ... */};
+/* Template */
+template&lt;typename F>
+void f(F lambda) { /* ... */}
+</code> 
+		</pre>
+
+
+		<h2>Recursive Lambda Expression</h2>
+
+		<p>By assigning lambda expression to <span class="code">std::function</span>, it is possible to reference itself. <b>Note that the function must be captured by reference. Otherwise it will compile but give a run-time error.</b></p>
+
+		<pre>
+<code class="language-cpp">
+std::function&lt;int (int)&gt; factorial = [=] (int i)
+    {
+        return (i == 1) ? 1 : i * factorial(i - 1);
+    };
+</code>
+		</pre>
+
+		<p><b>Check out next <a href="functional_cpp2.html">blog</a> for how to use <span class="code">std::function</span> and <span class="code">std::bind</span>.</b></p>
+
+	</div>
+
+
+	<!--Footer-->
+	<script>
+		insertFooter()
+	</script>
+</body>
+
+</html>
