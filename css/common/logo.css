@@ -1,0 +1,66 @@
+/**** Animation ****/
+@keyframes slideInFromLeft {
+    0% {
+        transform: translateX(-10%);
+        opacity: 0%;
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInFromRight {
+    0% {
+        transform: translateX(10%);
+        opacity: 0%;
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+/******* Heading *********/
+.head-title {
+    display: flex;
+    justify-content: center;
+    margin: 20px 20px;
+}
+
+.head-title a {
+    display: inline-block;
+    overflow: visible;
+}
+
+.head-name {
+    animation: 1.5s ease-out 0s 1 slideInFromLeft;
+}
+
+.logo {
+    font: 60px sans-serif;
+    text-shadow: 0 0 .2em #AAA, 0 0 .5em #CCC;
+    -webkit-text-stroke: 2.5px #555;
+    color: white;
+    margin-top: .3em;
+}
+
+
+.cata {
+    font-family: 'Courier New', Courier, monospace;
+    margin-left: 1em;
+    color: #555;
+    display: flex;
+}
+
+.cata .head-part {
+    animation: 1.5s ease-out 0s 1 slideInFromRight;
+    font-size: 50px;
+    align-self: flex-end;
+}
+
+.cata .head-split {
+    font-size: 80px;
+    align-self: flex-end;
+}
+

@@ -1,0 +1,65 @@
+.footer-container {
+    margin-top: 5em;
+    display: flex;
+	justify-content: center;
+}
+
+.quote {
+    color: #555;
+    text-align: center;
+    padding-top: 0.1em;
+    letter-spacing: 7px;
+}
+
+.footer-container .footer {
+    box-shadow: 0px -0.3em 0.5em -0.5em #555;
+    padding-left: 10em;
+    padding-right: 10em;
+}
+
+.footer-inner {
+    justify-content: center;
+	font-size: 85%;
+}
+
+.copyright {
+	font-family: Arial, Helvetica, sans-serif;
+	color: #555;
+	text-align: center;
+	text-decoration: none;
+	padding-top: .5em;
+}
+
+.copyright a{
+	color: #555;
+	text-decoration: none;
+}
+.copyright a:hover{
+    color: #555;
+    text-shadow: 0 0 .2em darkgray, 0 0 .5em darkgray;
+}
+.contact-me {
+    margin: 1em;
+	font-family: Arial, Helvetica, sans-serif;
+	color: #555;
+	text-align: center;
+	text-decoration: none;
+}
+
+.contact-me a {
+    margin: 10px;
+    font-family: Arial;
+    text-decoration: none;
+    color: #555;
+	font: bold;
+}
+
+.contact-me a:hover {
+    color: #555;
+    text-shadow: 0 0 .2em darkgray, 0 0 .5em darkgray;
+}
+
+.footer-container .footer .ContactMe span{
+    font-family: Arial;
+    color: #555;
+}

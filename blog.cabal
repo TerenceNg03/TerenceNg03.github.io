@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      Common
       Lib
   other-modules:
       Paths_blog
@@ -36,6 +37,7 @@ library
     , blaze-html
     , directory
     , filepath
+    , process
   default-language: Haskell2010
 
 executable blog-exe
@@ -51,6 +53,7 @@ executable blog-exe
     , blog
     , directory
     , filepath
+    , process
   default-language: Haskell2010
 
 test-suite blog-test
@@ -67,4 +70,5 @@ test-suite blog-test
     , blog
     , directory
     , filepath
+    , process
   default-language: Haskell2010

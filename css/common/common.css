@@ -1,0 +1,62 @@
+@import "nav.css";
+@import "logo.css";
+@import "footer.css";
+
+@media only screen and (max-width: 600px) {
+    body {
+        font-size: 3vw;
+    }
+
+    .footerContainer .footer {
+        padding-left: 0em;
+        padding-right: 0em;
+    }
+
+    .navbarContainer .navbar {
+        padding-left: 2em;
+        padding-right: 2em;
+    }
+
+    .navbarContainer .navbar a {
+        padding: 0.85em 0.5em;
+    }
+
+    .Headsvg {
+        width: 50vw;
+        height: 15vw;
+    }
+
+    .cata .HeadPart {
+        font-size: 8vw;
+    }
+
+    .cata .HeadSplit {
+        font-size: 12vw;
+    }
+}
+
+body {
+	font-family: Simsun;
+}
+
+.page_index {
+	display: flex;
+	justify-content: center;
+	font-size: 150%;
+	font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+}
+.page_index a{
+    color: #555;
+    padding: 0.85em 0.5em;
+    text-decoration: none;
+	letter-spacing: 0.2em;
+}
+
+.page_index a:hover {
+    text-shadow: 0 0 .2em darkgray, 0 0 .5em darkgray;	
+}
+
+.page_index .page_index_current {
+	font-weight: bold;
+}

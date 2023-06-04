@@ -1,0 +1,30 @@
+/* Navbar */
+.navbar-container{
+	display: flex;
+	justify-content: center;
+	margin-bottom: 3em;
+}
+.navbar {
+    font-family: Arial;
+    border: solid transparent 0em;
+    padding-left: 5em;
+    padding-right: 5em;
+    box-shadow: 0px 0.3em 0.5em -0.5em #555, 0px -0.3em 0.5em -0.5em #555;
+}
+
+/* Links inside the navbar */
+.navbar a {
+    float: left;
+    font-size: 1em;
+    color: #555;
+    text-align: center;
+    padding: 0.85em 1em;
+    text-decoration: none;
+}
+
+/* Add a red background color to navbar links on hover */
+.navbar a:hover {
+    color: #555;
+    text-shadow: 0 0 .2em darkgray, 0 0 .5em darkgray;
+}
+
