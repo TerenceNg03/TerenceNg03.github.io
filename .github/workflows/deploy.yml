@@ -14,7 +14,7 @@ jobs:
           stack-version: 'latest'
       - run: stack run
       
-      - name: Deploy book
+      - name: Deploy pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
