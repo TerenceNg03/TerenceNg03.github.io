@@ -40,7 +40,7 @@ blogNav baseLink = H.div ! class_ "navbar-container" $ do
     H.div ! class_ "navbar" $ do
         a ! href (fromString $ baseLink ++ "index.html") $ "Home"
         a ! href (fromString $ baseLink ++ "blog/blog.html") $ "Blogs"
-        a ! href (fromString $ baseLink ++ "photo/photo.html") $ "Photos"
+        a ! href (fromString $ baseLink ++ "photos/photo1.html") $ "Photos"
         a ! href (fromString $ baseLink ++ "prose/prose.html") $ "Proses"
         a ! href (fromString $ baseLink ++ "poem/poem.html") $ "Poems"
         a ! href "#" ! onclick "return false;" ! onmousedown "autoScrollTo('About');" $ "About"
@@ -55,4 +55,4 @@ blogFooter = H.div ! class_ "footer-container" $
         H.div ! class_ "contact-me" $ do
             a ! href "https://github.com/TerenceNg03" $ "Github Profile"
             "|"
-            a ! href "stoicism03@outlook.com" $ "Contact Me"
+            a ! href "stoicism03@gmail.com" $ "Contact Me"
