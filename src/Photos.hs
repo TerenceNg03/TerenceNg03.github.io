@@ -4,6 +4,7 @@ module Photos (blogPhotos) where
 
 import Common (blogFooter, blogHeader, htmlHead)
 import Control.Monad (filterM, forM_)
+import Data.List (isSuffixOf, sort)
 import Data.String (IsString, fromString)
 import System.Directory (doesFileExist, getDirectoryContents)
 import System.FilePath (takeFileName)
@@ -20,26 +21,39 @@ dataBaseL :: (IsString a) => String -> a
 dataBaseL s = baseL' $ "data/photos/" ++ s
 
 photosIndex :: Int -> Int -> Html
-photosIndex allN currN = H.div ! class_ "page-index" $
-    forM_ [1 .. allN] $ \idx ->
+photosIndex allN currN = H.div ! class_ "page-index" $ do
+    a ! href "index.html" !? (currN == 1, class_ "page-index-current") $ "[1]"
+    forM_ [2 .. allN] $ \idx ->
         a
-            ! href (fromString $ "photo" ++ show idx ++ ".html")
+            ! href (fromString $ "photo" ++ show (idx - 1) ++ ".html")
             !? (idx == currN, class_ "page-index-current")
             $ fromString
             $ "[" ++ show idx ++ "]"
 
-photoPage :: Int -> Int -> [String] -> Html
-photoPage allN currN photos = docTypeHtml $ do
+photoHead :: Html
+photoHead =
     htmlHead baseL "Terence Ng - Photos" $
         link ! rel "stylesheet" ! (href . baseL' $ "css/photos.css")
+
+photoPage :: Int -> Int -> [String] -> Html
+photoPage allN currN photos = docTypeHtml $ do
+    photoHead
     body $ do
-        blogHeader baseL (Just "photo")
+        blogHeader baseL (Just "Photo")
+        forM_ photos $ \photo ->
+            H.div ! class_ "display" $ img ! src (dataBaseL $ "display/" ++ photo) ! alt "photo"
+        photosIndex allN (currN + 1)
+        blogFooter
+
+photoCoverPage :: Int -> Html
+photoCoverPage allN = do
+    photoHead
+    body $ do
+        blogHeader baseL (Just "Photo")
         H.div ! class_ "image" $
             img ! src (dataBaseL "cover.jpg") ! alt "Cover"
         H.div ! class_ "intro" $ p "終需消散的 · 但試過捉緊"
-        forM_ photos $ \photo ->
-            H.div ! class_ "display" $ img ! src (dataBaseL $ "display/" ++ photo) ! alt "photo"
-        photosIndex allN currN
+        photosIndex allN 1
         blogFooter
 
 groupN :: Int -> [a] -> [[a]]
@@ -52,10 +66,11 @@ blogPhotos :: IO [(Html, String)]
 blogPhotos = do
     let readPath = "data/photos/display/"
     dirContents <- getDirectoryContents readPath
-    files <- filterM doesFileExist $ (readPath ++) <$> dirContents
-    let files' = groupN 2 $ takeFileName <$> files
-        allN = length files'
+    files <- filterM doesFileExist $ 
+        (readPath ++) <$> filter (".jpg" `isSuffixOf`) dirContents
+    let files' = groupN 3 . sort $ takeFileName <$> files
+        allN = length files' + 1
     putStrLn "Photos group :"
     print files'
-    return $ flip (<$>) (zip [1 ..] files') $ \(idx, file) ->
+    return $ ((photoCoverPage allN, "photos/index.html") :) $ flip (<$>) (zip [1 ..] files') $ \(idx, file) ->
         (photoPage allN idx file, "photos/photo" ++ show idx ++ ".html")

@@ -21,12 +21,10 @@ blogHeader baseLink titleName = do
 
 blogLogo :: Maybe String -> Html
 blogLogo titleName = H.div ! class_ "head-title" $ do
-    maybe H.div (const (! class_ "head-name")) titleName $
-        H.div ! class_ "logo" $
-            "Terence Ng"
+    let logo = H.div "Terence Ng"
     case titleName of
-        Nothing -> return ()
-        Just titleName' -> H.div ! class_ "cata" $ do
+        Nothing -> logo ! class_ "logo"
+        Just titleName' -> ((logo ! class_ "logo-ani") >>) $ H.div ! class_ "cata" $ do
             H.span ! class_ "head-split" $ "|"
             H.span ! class_ "head-part" $ toHtml titleName'
 
@@ -40,7 +38,7 @@ blogNav baseLink = H.div ! class_ "navbar-container" $ do
     H.div ! class_ "navbar" $ do
         a ! href (fromString $ baseLink ++ "index.html") $ "Home"
         a ! href (fromString $ baseLink ++ "blog/blog.html") $ "Blogs"
-        a ! href (fromString $ baseLink ++ "photos/photo1.html") $ "Photos"
+        a ! href (fromString $ baseLink ++ "photos/index.html") $ "Photos"
         a ! href (fromString $ baseLink ++ "prose/prose.html") $ "Proses"
         a ! href (fromString $ baseLink ++ "poem/poem.html") $ "Poems"
         a ! href "#" ! onclick "return false;" ! onmousedown "autoScrollTo('About');" $ "About"
