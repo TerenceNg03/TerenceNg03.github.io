@@ -6,12 +6,13 @@ import Data.String (IsString (fromString))
 import Text.Blaze.Html5 as H
 import Text.Blaze.Html5.Attributes as A
 
-htmlHead :: String -> String -> Html
-htmlHead baseLink titleName = H.head $ do
+htmlHead :: String -> String -> Html -> Html
+htmlHead baseLink titleName other = H.head $ do
     H.title $ toHtml titleName
     link ! rel "stylesheet" ! href (fromString $ baseLink ++ "css/common/common.css")
     script ! src "https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" $ ""
     meta ! name "viewport" ! content "width=device-width, initial-scale=1"
+    other
 
 blogHeader :: String -> Maybe String -> Html
 blogHeader baseLink titleName = do

@@ -12,7 +12,7 @@ bug-reports:    https://github.com/TerenceNg03/blog/issues
 author:         Terence Ng
 maintainer:     example@example.com
 copyright:      2023 Terence Ng
-license:        BSD3
+license:        AllRightsReserved
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
@@ -26,7 +26,10 @@ source-repository head
 library
   exposed-modules:
       Common
+      Index
       Lib
+      Photos
+      Utils
   other-modules:
       Paths_blog
   hs-source-dirs:

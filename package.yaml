@@ -1,7 +1,7 @@
 name:                blog
 version:             0.1.0.0
 github:              "TerenceNg03/blog"
-license:             BSD3
+license:             AllRightsReserved
 author:              "Terence Ng"
 maintainer:          "example@example.com"
 copyright:           "2023 Terence Ng"

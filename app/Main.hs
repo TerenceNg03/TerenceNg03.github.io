@@ -2,24 +2,29 @@
 
 module Main (Main.main) where
 
-import Lib (blogFooter, blogHeader, htmlHead)
+import Lib (blogIndex)
+import System.Directory (createDirectoryIfMissing)
+import System.FilePath.Posix (takeDirectory)
 import System.Process (readProcess)
 import Text.Blaze.Html.Renderer.Pretty (renderHtml)
-import Text.Blaze.Html5 as H
+import Text.Blaze.Html5
 
-index :: Html
-index = docTypeHtml $ do
-    htmlHead baseL "Terence Ng - Home"
-    body $ do
-        blogHeader baseL Nothing
-        blogFooter
+writeHtml :: (Html, String) -> IO ()
+writeHtml (htmlContent, path) = do
+    putStrLn $ "Writing " ++ filePath
+    createDirectoryIfMissing True $ takeDirectory filePath
+    writeFile filePath (renderHtml htmlContent)
   where
-    baseL = "./"
+    filePath = "./build/" ++ path
+
+rsync :: String -> IO ()
+rsync dir = do
+    msg <- readProcess "rsync" ["-avR", dir, "build/"] ""
+    putStrLn $ "Sync " ++ dir ++ " files..."
+    putStrLn msg
 
 main :: IO ()
 main = do
-    rsync <- readProcess "rsync" ["-av", "css", "build"] ""
-    putStrLn "Sync css files..."
-    putStr rsync
-    putStrLn "Done sync css files"
-    writeFile "./build/index.html" (renderHtml index)
+    rsync "css/"
+    rsync "data/"
+    writeHtml blogIndex

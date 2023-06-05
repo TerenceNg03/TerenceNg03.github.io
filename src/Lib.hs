@@ -1,5 +1,5 @@
 module Lib (
-    module Common,
+    module Index,
 ) where
 
-import Common
+import Index
