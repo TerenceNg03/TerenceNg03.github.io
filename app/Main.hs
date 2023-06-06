@@ -2,7 +2,7 @@
 
 module Main (Main.main) where
 
-import Blog (blogsPages)
+import Blogs (blogsPages)
 import Index (blogIndex)
 import Photos (photoPages)
 import System.Directory (createDirectoryIfMissing)
@@ -10,6 +10,7 @@ import System.FilePath.Posix (takeDirectory)
 import System.Process (readProcess)
 import Text.Blaze.Html.Renderer.Pretty (renderHtml)
 import Text.Blaze.Html5
+import Poems (poemsPages)
 
 writeHtml :: (Html, String) -> IO ()
 writeHtml (htmlContent, path) = do
@@ -30,7 +31,6 @@ main = do
     rsync "css/"
     rsync "data/"
     writeHtml blogIndex
-    photos <- photoPages
-    mapM_ writeHtml photos
-    blogs <- blogsPages
-    mapM_ writeHtml blogs
+    photoPages >>= mapM_ writeHtml
+    blogsPages >>= mapM_ writeHtml 
+    poemsPages >>= mapM_ writeHtml 

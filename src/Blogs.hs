@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TupleSections #-}
 
-module Blog (blogsPages) where
+module Blogs (blogsPages) where
 
 import CMark (commonmarkToHtml, optUnsafe)
 import Common (blogFooter, blogHeader, htmlHead)

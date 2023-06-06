@@ -25,11 +25,12 @@ source-repository head
 
 library
   exposed-modules:
-      Blog
+      Blogs
       Common
       Index
       Lib
       Photos
+      Poems
       Utils
   other-modules:
       Paths_blog
