@@ -37,10 +37,10 @@ blogNav baseLink = H.div ! class_ "navbar-container" $ do
         \    }"
     H.div ! class_ "navbar" $ do
         a ! href (fromString $ baseLink ++ "index.html") $ "Home"
-        a ! href (fromString $ baseLink ++ "blog/blog.html") $ "Blogs"
+        a ! href (fromString $ baseLink ++ "blogs/index.html") $ "Blogs"
         a ! href (fromString $ baseLink ++ "photos/index.html") $ "Photos"
-        a ! href (fromString $ baseLink ++ "prose/prose.html") $ "Proses"
-        a ! href (fromString $ baseLink ++ "poem/poem.html") $ "Poems"
+        a ! href (fromString $ baseLink ++ "proses/index.html") $ "Proses"
+        a ! href (fromString $ baseLink ++ "poems/index.html") $ "Poems"
         a ! href "#" ! onclick "return false;" ! onmousedown "autoScrollTo('About');" $ "About"
 
 blogFooter :: Html

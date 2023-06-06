@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      Blog
       Common
       Index
       Lib
@@ -38,9 +39,11 @@ library
   build-depends:
       base >=4.7 && <5
     , blaze-html
+    , cmark
     , directory
     , filepath
     , process
+    , text
   default-language: Haskell2010
 
 executable blog-exe
@@ -54,9 +57,11 @@ executable blog-exe
       base >=4.7 && <5
     , blaze-html
     , blog
+    , cmark
     , directory
     , filepath
     , process
+    , text
   default-language: Haskell2010
 
 test-suite blog-test
@@ -71,7 +76,9 @@ test-suite blog-test
       base >=4.7 && <5
     , blaze-html
     , blog
+    , cmark
     , directory
     , filepath
     , process
+    , text
   default-language: Haskell2010

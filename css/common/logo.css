@@ -34,16 +34,16 @@
 }
 
 .logo-ani {
-    font: 60px sans-serif;
+    font: 4em sans-serif;
     text-shadow: 0 0 .2em #AAA, 0 0 .5em #CCC;
-    -webkit-text-stroke: 2.5px #555;
+    -webkit-text-stroke: .04em #555;
     color: white;
     margin-top: .3em;
     animation: 1.5s ease-out 0s 1 slideInFromLeft;
 }
 
 .logo {
-    font: 60px sans-serif;
+    font: 3.75em sans-serif;
     text-shadow: 0 0 .04em #AAA, 0 0 .5em #CCC;
     -webkit-text-stroke: .04em #555;
     color: white;
@@ -60,12 +60,12 @@
 
 .cata .head-part {
     animation: 1.5s ease-out 0s 1 slideInFromRight;
-    font-size: 50px;
+    font-size: 3.4em;
     align-self: flex-end;
 }
 
 .cata .head-split {
-    font-size: 80px;
+    font-size: 5em;
     align-self: flex-end;
 }
 

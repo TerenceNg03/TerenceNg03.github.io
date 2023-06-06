@@ -7,30 +7,33 @@
         font-size: 3vw;
     }
 
-    .footerContainer .footer {
+    .footer-container .footer {
         padding-left: 0em;
         padding-right: 0em;
     }
 
-    .navbarContainer .navbar {
+    .navbar-container .navbar {
         padding-left: 2em;
         padding-right: 2em;
     }
 
-    .navbarContainer .navbar a {
+    .navbar-container .navbar a {
         padding: 0.85em 0.5em;
     }
 
-    .Headsvg {
-        width: 50vw;
-        height: 15vw;
+    .logo {
+        font-size: 10vw;
     }
 
-    .cata .HeadPart {
+    .logo-ani {
+        font-size: 9vw;
+    }
+
+    .cata .head-part {
         font-size: 8vw;
     }
 
-    .cata .HeadSplit {
+    .cata .head-split {
         font-size: 12vw;
     }
 }

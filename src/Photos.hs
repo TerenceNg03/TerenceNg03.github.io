@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Photos (blogPhotos) where
+module Photos (photoPages) where
 
 import Common (blogFooter, blogHeader, htmlHead)
 import Control.Monad (filterM, forM_)
@@ -30,31 +30,27 @@ photosIndex allN currN = H.div ! class_ "page-index" $ do
             $ fromString
             $ "[" ++ show idx ++ "]"
 
-photoHead :: Html
-photoHead =
+photoHead :: Html -> Html
+photoHead s = docTypeHtml $ do
     htmlHead baseL "Terence Ng - Photos" $
         link ! rel "stylesheet" ! (href . baseL' $ "css/photos.css")
+    body $ blogHeader baseL (Just "Photo")
+    s
 
 photoPage :: Int -> Int -> [String] -> Html
-photoPage allN currN photos = docTypeHtml $ do
-    photoHead
-    body $ do
-        blogHeader baseL (Just "Photo")
-        forM_ photos $ \photo ->
-            H.div ! class_ "display" $ img ! src (dataBaseL $ "display/" ++ photo) ! alt "photo"
-        photosIndex allN (currN + 1)
-        blogFooter
+photoPage allN currN photos = docTypeHtml . photoHead $ do
+    forM_ photos $ \photo ->
+        H.div ! class_ "display" $ img ! src (dataBaseL $ "display/" ++ photo) ! alt "photo"
+    photosIndex allN (currN + 1)
+    blogFooter
 
 photoCoverPage :: Int -> Html
-photoCoverPage allN = do
-    photoHead
-    body $ do
-        blogHeader baseL (Just "Photo")
-        H.div ! class_ "image" $
-            img ! src (dataBaseL "cover.jpg") ! alt "Cover"
-        H.div ! class_ "intro" $ p "終需消散的 · 但試過捉緊"
-        photosIndex allN 1
-        blogFooter
+photoCoverPage allN = photoHead $ do
+    H.div ! class_ "image" $
+        img ! src (dataBaseL "cover.jpg") ! alt "Cover"
+    H.div ! class_ "intro" $ p "終需消散的 · 但試過捉緊"
+    photosIndex allN 1
+    blogFooter
 
 groupN :: Int -> [a] -> [[a]]
 groupN n l =
@@ -62,12 +58,13 @@ groupN n l =
         then []
         else take n l : groupN n (drop n l)
 
-blogPhotos :: IO [(Html, String)]
-blogPhotos = do
+photoPages :: IO [(Html, String)]
+photoPages = do
     let readPath = "data/photos/display/"
     dirContents <- getDirectoryContents readPath
-    files <- filterM doesFileExist $ 
-        (readPath ++) <$> filter (".jpg" `isSuffixOf`) dirContents
+    files <-
+        filterM doesFileExist $
+            (readPath ++) <$> filter (".jpg" `isSuffixOf`) dirContents
     let files' = groupN 3 . sort $ takeFileName <$> files
         allN = length files' + 1
     putStrLn "Photos group :"

@@ -2,8 +2,9 @@
 
 module Main (Main.main) where
 
-import Lib (blogIndex)
-import Photos (blogPhotos)
+import Blog (blogsPages)
+import Index (blogIndex)
+import Photos (photoPages)
 import System.Directory (createDirectoryIfMissing)
 import System.FilePath.Posix (takeDirectory)
 import System.Process (readProcess)
@@ -29,5 +30,7 @@ main = do
     rsync "css/"
     rsync "data/"
     writeHtml blogIndex
-    photos <- blogPhotos
+    photos <- photoPages
     mapM_ writeHtml photos
+    blogs <- blogsPages
+    mapM_ writeHtml blogs
