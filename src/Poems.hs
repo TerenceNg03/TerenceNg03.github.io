@@ -26,15 +26,15 @@ dataBaseL s = baseL' $ "data/poems/" ++ s
 txtToHtml :: String -> (String, Html)
 txtToHtml s =
     let title' = takeWhile (/= '\n') s
-        removeLine = drop 1 . dropWhile (/='\n')
-        body' = removeLine . removeLine  $ s
+        removeLine = drop 1 . dropWhile (/= '\n')
+        body' = removeLine . removeLine $ s
      in (title',) $ do
             h1 ! class_ "poem-title" $ fromString title'
             p ! class_ "poem-content" $ breakLines body'
 
 poemsHead :: Html -> Html
 poemsHead s = docTypeHtml $ do
-    htmlHead baseL "Terence Ng - Poemss" $ do
+    htmlHead baseL "Terence Ng - Poems" $ do
         link ! rel "stylesheet" ! (href . baseL' $ "css/poems.css")
     body $ do
         blogHeader baseL (Just "Poems")
@@ -55,11 +55,7 @@ poemsIndex titles = poemsHead $ do
                     a ! href (fromString $ show idx ++ ".html") $ toHtml title'
 
 poemPage :: String -> Html
-poemPage s =
-    poemsHead $
-        H.div ! class_ "blog-container" $
-            snd . txtToHtml $
-                s
+poemPage = poemsHead . snd . txtToHtml
 
 poemsPages :: IO [(Html, String)]
 poemsPages = do

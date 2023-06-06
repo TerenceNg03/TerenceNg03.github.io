@@ -31,6 +31,7 @@ library
       Lib
       Photos
       Poems
+      Proses
       Utils
   other-modules:
       Paths_blog
