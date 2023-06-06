@@ -24,8 +24,6 @@
 .image > img{
 	width: 37.5em;
 	height: 25em;
-	object-fit: cover;
-	filter: drop-shadow(2em 2em 10em rgba(0,0,0,.5));
 }
 
 .image > p{

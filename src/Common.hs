@@ -9,6 +9,7 @@ import Text.Blaze.Html5.Attributes as A
 htmlHead :: String -> String -> Html -> Html
 htmlHead baseLink titleName other = H.head $ do
     H.title $ toHtml titleName
+    meta ! charset "utf-8"
     link ! rel "stylesheet" ! href (fromString $ baseLink ++ "css/common/common.css")
     script ! src "https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" $ ""
     meta ! name "viewport" ! content "width=device-width, initial-scale=1"
