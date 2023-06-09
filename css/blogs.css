@@ -70,9 +70,6 @@
 
 pre {
 	tab-size: 4;
-	margin-top: 0px;
-	margin-bottom: 0px;
-	padding-top: 2em;
 }
 
 pre > code {
@@ -83,17 +80,18 @@ pre > code {
 .blog-container h1{
 	text-align: center;
 	font-size: 200%;
-	font-weight: normal;
+	font-weight: bold;
+    color: #666;
 }
 
 .blog-container h2{
 	font-size: 160%;
-	font-weight: normal;
+	font-weight: bold;
 }
 
 .blog-container h3{
 	font-size: 150%;
-	font-weight: normal;
+	font-weight: bold;
 }
 
 .blog-container p{

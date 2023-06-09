@@ -36,6 +36,7 @@ blogsHead s = docTypeHtml $ do
         link ! rel "stylesheet" ! (href . baseL' $ "css/blogs.css")
         link ! rel "stylesheet" ! href (dataBaseL "highlight/styles/default.min.css")
         script ! src (dataBaseL "highlight/highlight.min.js") $ ""
+        script ! src (dataBaseL "highlight/languages/haskell.min.js") $ ""
         script ! src (dataBaseL "catalog.js") ! defer "" $ ""
     body $ do
         blogHeader baseL (Just "Blogs")
