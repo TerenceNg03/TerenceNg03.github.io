@@ -27,6 +27,7 @@ dependencies:
 - filepath
 - blaze-html
 - cmark
+- aeson == 2.0.3.0
 
 ghc-options:
 - -Wall

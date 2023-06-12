@@ -39,7 +39,7 @@ instance Functor BaseParser where
          in (s', f a)
 ```
 
-As you may see, we are now able to transform `Parser a` into `Parser b`, yet we still can not combine two parser which is required to parser context free grammar (CFG). And that is why we must make it an `Applicative`. Note that although `Applicative` is enough to handle any context free grammar (CFG), we may be interested in something more powerful in order to parse context sensitive grammar (CSG). This requires us to make our `Parser` a `Monad`.
+As you may see, we are now able to transform `BaseParser a` into `BaseParser b`, yet we still can not combine two parser which is required to parser context free grammar (CFG). And that is why we must make it an `Applicative`. Note that although `Applicative` is enough to handle any context free grammar (CFG), we may be interested in something more powerful in order to parse context sensitive grammar (CSG). This requires us to make our `Parser` a `Monad`.
 
 ```haskell
 {-# LANGUAGE TupleSections #-}
@@ -60,7 +60,7 @@ And that is it, you now have a working parser combinator with about 20 lines of 
 
 ## But What about Error Handling?
 
-Our `Parser` definition says nothing about error handling, but it doesn't means we can not handle errors outside `Parser` with a **monad transformer**. 
+Our `BaseParser` definition says nothing about error handling, but it doesn't means we can not handle errors outside `BaseParser` with a **monad transformer**. 
 
 ```haskell
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
@@ -74,7 +74,7 @@ And that is all the codes we need.
 
 ## Combining "or" parsers
 
-`Applicative` and `Monad` allows us to combine several parser together so that we can parse a sequence. But what about "vertically" combine? If we are parsing something like `json`, we probably want to try to parse a **number** or a **string** or an **array** together. For such requirement, we would intorduce a new operator for `EParser`.
+`Applicative` and `Monad` allows us to combine several parser together so that we can parse a sequence. But what about "vertically" combine? If we are parsing something like `json`, we probably want to try to parse a **number** or a **string** or an **array** together. For such requirement, we would introduce a new operator for `Parser`.
 
 ```haskell
 import Control.Monad.Except (ExceptT (ExceptT))
