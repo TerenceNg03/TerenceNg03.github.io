@@ -1,10 +1,10 @@
-# 來写一个Parser Combinator
+# 來寫一個Parser Combinator
 
-在之前的文章中，我已经谈到了使用 `flex & bison` 生成解析器。然而，这样的解析器已知存在一系列问题。首先是它们几乎无法进行调试和测试。在实践中，我们希望以小单位测试我们的解析器，从而可以精确定位错误。另一个常见问题是让解析器生成器生成代码会使编译更加复杂（特别是对于像 `C++` 这样的语言），用户被迫学习它们自己的 API，这可能非常繁琐。
+在之前的文章中，我已經談到了使用 `flex & bison` 生成解析器。然而，這樣的解析器已知存在一系列問題。首先是它們幾乎無法進行調試和測試。在實踐中，我們希望以小單位測試我們的解析器，從而可以精確定位錯誤。另一個常見問題是讓解析器生成器生成代碼會使編譯更加複雜（特別是對於像 `C++` 這樣的語言），用戶被迫學習它們自己的 API，這可能非常繁瑣。
 
-## 那么，什么是Parser Combinator？
+## 那麼，什麼是Parser Combinator？
 
-Parser Combinator是一个 `Monad`，同時也是 `Functor` 和 `Applicative` 的instance。它允许我们将小型和简单的解析器组合成大型和复杂的解析器，并且不需要编写任何语法/语法文件。例如，为了使用解析器组合器识别标识符，我们可以这样做：
+Parser Combinator是一個 `Monad`，同時也是 `Functor` 和 `Applicative` 的instance。它允許我們將小型和簡單的解析器組合成大型和複雜的解析器，並且不需要編寫任何語法/語法文件。例如，為了使用解析器組合器識別標識符，我們可以這樣做：
 
 ```haskell
 charP :: (Char -> Bool) -> Parser Char
@@ -19,18 +19,18 @@ identP = liftA2 (:) startP $ repeatP bodyP
           startP = charP isLetter
 ```
 
-## 好的，告诉我怎么做
+## 好的，告訴我怎麼做
 
-像大多数 `Monad` 一样，让我们从将 `Parser` 定义为 **封装的 lambda 函数** 开始，它将 `String` 转换为剩余的字符串和解析的数据（类型为 `a`）的元组。
+像大多數 `Monad` 一樣，讓我們從將 `Parser` 定義為 **封裝的 lambda 函數** 開始，它將 `String` 轉換為剩餘的字符串和解析的數據（類型為 `a`）的元組。
 
-这里我们将编写一个简单的，不做任何错误處理的`BaseParser`，之後再填加上相關的方法
+這裡我們將編寫一個簡單的，不做任何錯誤處理的`BaseParser`，之後再填加上相關的方法
 
 ```haskell
 newtype BaseParser a = BaseParser 
     {runBaseParser :: String -> (String, a)}
 ```
 
-现在让我们将其变为 `Functor`。
+現在讓我們將其變為 `Functor`。
 
 ```haskell
 instance Functor BaseParser where
@@ -39,7 +39,7 @@ instance Functor BaseParser where
          in (s', f a)
 ```
 
-由於`Functor`的特性，现在我们能够将 `BaseParser a` 转换为 `BaseParser b`，但我们仍然无法组合两个解析器，而这是解析上下文无关文法（CFG）所需的。这就是为什么我们必须将其变为 `Applicative`。尽管 `Applicative` 足以处理任何上下文无关文法（CFG），但我们可能对更强大的内容感兴趣，以便解析上下文敏感文法（CSG）。这要求我们将我们的 `Parser` 变成一个 `Monad`。
+由於`Functor`的特性，現在我們能夠將 `BaseParser a` 轉換為 `BaseParser b`，但我們仍然無法組合兩個解析器，而這是解析上下文無關文法（CFG）所需的。這就是為什麼我們必須將其變為 `Applicative`。儘管 `Applicative` 足以處理任何上下文無關文法（CFG），但我們可能對更強大的內容感興趣，以便解析上下文敏感文法（CSG）。這要求我們將我們的 `Parser` 變成一個 `Monad`。
 
 ```haskell
 {-# LANGUAGE TupleSections #-}
@@ -56,11 +56,11 @@ instance Monad BaseParser where
          in runBaseParser (f a) s'
 ```
 
-大功告成，我們用了20多行代碼就搞定了这個`BaseParser`。
+大功告成，我們用了20多行代碼就搞定了這個`BaseParser`。
 
-## 错误处理？
+## 錯誤處理？
 
-`BaseParser` 定义没有提到错误处理，但这并不意味着`BaseParser`不能处理错误。只需要加上`ExceptT`這一Monad Transformer然後包装成一個新類型即可。
+`BaseParser` 定義沒有提到錯誤處理，但這並不意味著`BaseParser`不能處理錯誤。只需要加上`ExceptT`這一Monad Transformer然後包裝成一個新類型即可。
 
 ```haskell
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
@@ -70,11 +70,11 @@ newtype Parser a = Parser (ExceptT String BaseParser a)
     deriving (Functor, Applicative, Monad)
 ```
 
-这就是我们需要的所有代码。
+這就是我們需要的所有代碼。
 
-## 组合“或”解析器
+## 組合「或」解析器
 
-`Applicative` 和 `Monad` 允许我们将几个解析器组合在一起，以便解析一个序列。但是"垂直"的组合呢？比如解析 `json` 格式的文本，我们可能想尝试一起解析一个**数字**或**字符串**或**数组**。为了满足这种要求，我们将为 `Parser` 引入一个新运算符`<|>`。
+`Applicative` 和 `Monad` 允許我們將幾個解析器組合在一起，以便解析一個序列。但是"垂直"的組合呢？比如解析 `json` 格式的文本，我們可能想嘗試一起解析一個**數字**或**字符串**或**數組**。為了滿足這種要求，我們將為 `Parser` 引入一個新運算符`<|>`。
 
 ```haskell
 import Control.Monad.Except (ExceptT (ExceptT))
@@ -95,11 +95,11 @@ p1 <|> p2 = parser $ \s ->
 
 ## 一些常用的Parser實現
 
-现在我们的解析器已经准备好解析任何东西了。我在这里给出一些示例，同時也可以参考 [我的 Seml Github 仓库](https://github.com/TerenceNg03/Seml/)，實現了一個将 S 表达式解析为 XML的Parser。
+現在我們的解析器已經準備好解析任何東西了。我在這裡給出一些示例，同時也可以參考 [我的 Seml Github 倉庫](https://github.com/TerenceNg03/Seml/)，實現了一個將 S 表達式解析為 XML的Parser。
 
 ### Char 解析器
 
-从一个只能解析一个字符的解析器开始。
+從一個只能解析一個字符的解析器開始。
 
 ```haskell
 charP :: (Char -> Bool) -> Parser Char
@@ -116,7 +116,7 @@ isP c = charP (== c)
 
 ### 重複Parser
 
-现在我们想解析一个标识符。为此，我们需要重复 `charP` `n` 次。
+現在我們想解析一個標識符。為此，我們需要重復 `charP` `n` 次。
 
 ```haskell
 import Control.Applicative (liftA2)
@@ -146,11 +146,11 @@ identP = liftA2 (:) (charP isLetter) $
     repeatP $ charP isAlphaNum
 ```
 
-请注意，即使我们在这里处理了空字符串，**重复接受空字符串的Parser**仍会导致**无限循环**。
+請注意，即使我們在這裡處理了空字符串，**重復接受空字符串的Parser**仍會導致**無限循環**。
 
 ### between Parser
 
-好的，我们可以解析一个标识符。但是解析带引号的字符串怎么办？
+好的，我們可以解析一個標識符。但是解析帶引號的字符串怎麼辦？
 
 ```haskell
 -- | Parse something between other things
@@ -172,7 +172,7 @@ quotedP =
 
 ### 分隔符Parser
 
-假设有一个由一些随机空格分隔的单词列表。我们该如何解析这些东西呢？
+假設有一個由一些隨機空格分隔的單詞列表。我們該如何解析這些東西呢？
 
 ```haskell
 -- | Repeat parser with separator 

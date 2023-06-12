@@ -30,14 +30,14 @@ indexTemplate prompt link' contents' = blogsHead Nothing $ do
                     H.span ! class_ "num" $ fromString . printf "%02d" $ idx
                     a ! href (fromString $ ref ++ ".html") $ toHtml title'
 
-merge :: [a] -> [b] -> [(a,b)]
-merge (x:xs) (y:ys) = (x,y):merge xs ys
+merge :: [a] -> [b] -> [(a, b)]
+merge (x : xs) (y : ys) = (x, y) : merge xs ys
 merge _ _ = []
 
 blogsIndex :: [BlogMeta] -> (Html, Html)
 blogsIndex metas =
     let contents_cn = merge (title_cn <$> metas) ((\s -> ref_id s ++ "_cn") <$> metas)
         contents_en = merge (title_en <$> metas) (ref_id <$> metas)
-    in  ( indexTemplate "Read English Version ➜" "index.html" contents_cn
+     in ( indexTemplate "Read English Version ➜" "index.html" contents_cn
         , indexTemplate "閱覧正體中文版 ➜" "index_cn.html" contents_en
         )

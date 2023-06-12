@@ -5,11 +5,11 @@ module Blogs.Utils (mdToHtml, baseL, baseL', dataBaseL, blogsHead) where
 
 import CMark (commonmarkToHtml, optUnsafe)
 import Common (blogFooter, blogHeader, htmlHead)
+import Data.Maybe (fromMaybe)
 import Data.String (IsString (fromString))
 import Data.Text (Text)
 import Text.Blaze.Html5 as H
 import Text.Blaze.Html5.Attributes as A
-import Data.Maybe (fromMaybe)
 
 blogsHead :: Maybe String -> Html -> Html
 blogsHead title' s = docTypeHtml $ do

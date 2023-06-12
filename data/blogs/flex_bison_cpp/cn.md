@@ -1,16 +1,16 @@
 # Flex & Bison生成C++代碼教學 
 
-## 什么是 Flex & Bison？
+## 什麼是 Flex & Bison？
 
-Flex & Bison 是 GNU 开发的一套工具，用于生成可以处理结构化输入的解析器。Flex 是一个分词器，将输入字符流分成标记。这些标记然后被发送到 Bison，它将根据特定的语法规则匹配它们，并相应地执行操作。
+Flex & Bison 是 GNU 開發的一套工具，用於生成可以處理結構化輸入的解析器。Flex 是一個分詞器，將輸入字符流分成標記。這些標記然後被發送到 Bison，它將根據特定的語法規則匹配它們，並相應地執行操作。
 
 ## Flex & Bison 和 C++
 
-Flex & Bison 已经存在了超过 40 年。当它们刚出生时，甚至没有 C++。因此，它们最初只生成 C 中的解析器，其中包含许多全局变量，通常无法重用。不幸的是，即使它们现在正式支持 C++，大多数教程仍然使用 C 代码。这就是为什么我想做这个教程来帮助你切换到 C++。在这里，我假设您已经掌握了基本用法，如果您没有，请参考[这篇文章](http://www.capsl.udel.edu/courses/cpeg421/2012/slides/Tutorial-Flex_Bison.pdf)。
+Flex & Bison 已經存在了超過 40 年。當它們剛出生時，甚至沒有 C++。因此，它們最初只生成 C 中的解析器，其中包含許多全局變量，通常無法重用。不幸的是，即使它們現在正式支持 C++，大多數教程仍然使用 C 代碼。這就是為什麼我想做這個教程來幫助你切換到 C++。在這裡，我假設您已經掌握了基本用法，如果您沒有，請參考[這篇文章](http://www.capsl.udel.edu/courses/cpeg421/2012/slides/Tutorial-Flex_Bison.pdf)。
 
-## 设置驱动Driver
+## 設置驅動Driver
 
-我们的解析器的大纲将如下所示。  
+我們的解析器的大綱將如下所示。  
 
 ```cpp
 class Driver
@@ -25,13 +25,13 @@ public:
 private:
     Scanner*    scanner; // 由 Flex 生成
     Parser*        parser;  // 由 Bison 生成
-    location*    location;// 用于跟踪错误
+    location*    location;// 用於跟蹤錯誤
 };
 ```
 
-## 设置Scanner
+## 設置Scanner
 
-在这一部分中，我们将设置我们的 Flex 文件 `scanner.l`。
+在這一部分中，我們將設置我們的 Flex 文件 `scanner.l`。
 
 ```cpp
 %option nodefault
@@ -42,16 +42,16 @@ private:
 %option c++
 ```
 
-首先，我们需要将上述选项放入我们的 Flex 文件中。它们的含义如下：
+首先，我們需要將上述選項放入我們的 Flex 文件中。它們的含義如下：
 
-* `nodefault`：让 Flex 不生成默认标记。
-* `debug`：启用调试信息。
-* `noyywrap`：即使读取到 EOF，Flex 也会继续运行。
-* `prefix`：生成的词法分析器的特定命名空间。
-* `yylineno`：计算行号。
-* `c++`：要求 Flex 生成 C++ 词法分析器。
+* `nodefault`：讓 Flex 不生成默認標記。
+* `debug`：啓用調試信息。
+* `noyywrap`：即使讀取到 EOF，Flex 也會繼續運行。
+* `prefix`：生成的詞法分析器的特定命名空間。
+* `yylineno`：計算行號。
+* `c++`：要求 Flex 生成 C++ 詞法分析器。
 
-在此之后，我们可以定义我们的规则，如下所示。
+在此之後，我們可以定義我們的規則，如下所示。
 
 ```cpp
 [0-9]{1,} return MyParser::Parser::make_NUM(atoi(yytext),loc);
@@ -62,9 +62,9 @@ private:
 . return MyParser::Parser::make_ILLEGAL(std::string(yytext),loc);
 ```
 
-## 设置Parser
+## 設置Parser
 
-这些选项需要放入 `parser.y` 中。
+這些選項需要放入 `parser.y` 中。
 
 ```plaintext
 %locations
@@ -78,17 +78,17 @@ private:
 %define api.token.constructor
 ```
 
-它们的含义如下：
+它們的含義如下：
 
-* `location`：启用位置跟踪。
-* `parse.error verbose`：让 Bison 生成详细的错误消息。
-* `parse-param`：传递给 yyparse 的参数。
-* `lex-param`：传递给 yylex 的参数。
-* `language`：启用位置跟踪。
-* `variant`：使用 C++ variant 特性而不是 C 风格的联合。
-* `constructor`：生成类似于我们在 `scanner.l` 中使用的 `make_PLUS` 的构造函数。
+* `location`：啓用位置跟蹤。
+* `parse.error verbose`：讓 Bison 生成詳細的錯誤消息。
+* `parse-param`：傳遞給 yyparse 的參數。
+* `lex-param`：傳遞給 yylex 的參數。
+* `language`：啓用位置跟蹤。
+* `variant`：使用 C++ variant 特性而不是 C 風格的聯合。
+* `constructor`：生成類似於我們在 `scanner.l` 中使用的 `make_PLUS` 的構造函數。
 
-然后，我们可以添加token和type。
+然後，我們可以添加token和type。
 
 ```plaintext
 %token NEWLINE PLUS MINUS 
@@ -98,18 +98,18 @@ private:
 %type  EXPR    
 ```
 
-我们可以为每个语法规则返回值类型。token的类型必须与 `scanner.l` 指定的规则匹配。
+我們可以為每個語法規則返回值類型。token的類型必須與 `scanner.l` 指定的規則匹配。
 
-## 错误检测和恢复
+## 錯誤檢測和恢復
 
-为了逐行读取输入，以便我们可以正确显示错误消息。我们需要重新加载 `LexerInput`。
+為了逐行讀取輸入，以便我們可以正確顯示錯誤消息。我們需要重新加載 `LexerInput`。
 
 cpp
 virtual size_t LexerInput( char* buf, size_t max_size );
 
         
 
-并且在读取令牌或换行符到达时更新位置。
+並且在讀取令牌或換行符到達時更新位置。
 
 cpp
 /* scanner.l */
@@ -135,7 +135,7 @@ STATEMENT :
 
         
 
-现在我们已经跟踪了位置并缓冲了每行输入。当出现错误时，Bison 将调用 `Parser::error()` 并停止解析。为了防止这种情况发生，我们可以利用一个特殊的规则 `error`，它将匹配所有未识别的标记。
+現在我們已經跟蹤了位置並緩衝了每行輸入。當出現錯誤時，Bison 將調用 `Parser::error()` 並停止解析。為了防止這種情況發生，我們可以利用一個特殊的規則 `error`，它將匹配所有未識別的標記。
 
 ```cpp
 /* Error display */
@@ -162,7 +162,7 @@ void Parser::error
 }
 ```
 
-错误消息将会是这样的。
+錯誤消息將會是這樣的。
 
 ```plaintext
 Enter expression:12+6-0&+66
@@ -172,7 +172,7 @@ line 1.1-7: syntax error, unexpected ILLEGAL, expecting NEWLINE
 Enter expression:
 ```
 
-## 代码下载
+## 代碼下載
 
-更多细节和完整的代码，你可以查看我的 [Github 仓库](https://github.com/TerenceNg03/Flex-Bison-Full-Cpp-Example)。
+更多細節和完整的代碼，你可以查看我的 [Github 倉庫](https://github.com/TerenceNg03/Flex-Bison-Full-Cpp-Example)。
 
