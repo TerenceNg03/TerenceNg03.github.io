@@ -32,6 +32,7 @@ main :: IO ()
 main = do
     rsync "css/"
     rsync "data/"
+    rsync "favicon/"
     writeHtml blogIndex
     forM_
         [photoPages, poemsPages, prosesPages, blogsPages]

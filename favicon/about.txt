@@ -1,0 +1,6 @@
+This favicon was generated using the following font:
+
+- Font Title: Spline Sans
+- Font Author: Copyright 2021 The Spline Sans Project Authors (https://github.com/SorkinType/SplineSans)
+- Font Source: http://fonts.gstatic.com/s/splinesans/v9/_6_sED73Uf-2WfU2LzycEZousNzn1a1lKWRp317YEtvlUfE2kw.ttf
+- Font License: SIL Open Font License, 1.1 (http://scripts.sil.org/OFL))

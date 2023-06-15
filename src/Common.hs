@@ -10,7 +10,12 @@ htmlHead :: String -> String -> Html -> Html
 htmlHead baseLink titleName other = H.head $ do
     H.title $ toHtml titleName
     meta ! charset "utf-8"
-    link ! rel "stylesheet" ! href (fromString $ baseLink ++ "css/common/common.css")
+    let hrefFixPath s = href (fromString $ baseLink ++ s)
+    link ! rel "stylesheet" ! hrefFixPath "css/common/common.css"
+    link ! rel "apple-touch-icon" ! sizes "180x180" ! hrefFixPath "favicon/apple-touch-icon.png"
+    link ! rel "icon" ! type_ "image/png" ! sizes "32x32" ! hrefFixPath "favicon/favicon-32x32.png"
+    link ! rel "icon" ! type_ "image/png" ! sizes "16x16" ! hrefFixPath "favicon/favicon-16x16.png"
+    link ! rel "manifest" ! hrefFixPath "favicon/site.webmanifest"
     script ! src "https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" $ ""
     meta ! name "viewport" ! content "width=device-width, initial-scale=1"
     other
