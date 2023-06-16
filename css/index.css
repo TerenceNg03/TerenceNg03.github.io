@@ -1,0 +1,57 @@
+.intro-title {
+	letter-spacing: 0.2em;
+	color: #555;
+	line-height: 0.7em;
+	text-align: center;
+	padding-top: 0.5em;
+}
+
+.intro-title .title{
+	font-size: 150%;
+}
+
+.intro-title .des {
+	font-size: 100%;	
+}
+
+.image {
+	display: flex;
+	justify-content: center;
+	margin-top: 4em;
+	margin-bottom: 2em;
+}
+
+.image > img{
+	width: 37.5em;
+	height: 25em;
+}
+
+.image > p{
+	padding: 5em 5em;
+	color: #555;
+	font-size: 110%;
+	letter-spacing: 0.2em;
+	line-height: 2.5em;
+	text-align: center;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+
+.left-clip {
+	clip-path: polygon(0 0, 100% 0, 75% 100%, 0 100%);
+}
+
+.right-clip {
+	clip-path: polygon(25% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+@media only screen and (max-width: 800px) {
+	.image > img {
+		width: 50vw;
+		height: 40vw;
+	}
+	.image > p {
+		padding: 0vw 5vw;
+		letter-spacing: 0.1em;
+	}
+}

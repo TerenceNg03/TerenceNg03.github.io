@@ -1,0 +1,235 @@
+<!DOCTYPE HTML>
+
+<html>
+    <head>
+        <title>
+             Flex &amp; Bison生成C++代碼教學 
+        </title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../css/common/common.css">
+        <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="../favicon/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="../favicon/favicon-16x16.png">
+        <link rel="manifest" href="../favicon/site.webmanifest">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js">
+            
+        </script>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="../css/blogs.css">
+        <link rel="stylesheet" href="../data/blogs/highlight/styles/default.min.css">
+        <script src="../data/blogs/highlight/highlight.min.js">
+            
+        </script>
+        <script src="../data/blogs/highlight/languages/haskell.min.js">
+            
+        </script>
+        <script src="../data/blogs/catalog.js" defer="">
+            
+        </script>
+    </head>
+    <body>
+        <div class="head-title">
+            <div class="logo-ani">
+                Terence Ng
+            </div>
+            <div class="cata">
+                <span class="head-split">
+                    |
+                </span>
+                <span class="head-part">
+                    Blogs
+                </span>
+            </div>
+        </div>
+        <div class="navbar-container">
+            <script>
+                function autoScrollTo(el) {    var top = $("#" + el).offset().top;    $("html, body").animate({ scrollTop: top }, 1000);    }
+            </script>
+            <div class="navbar">
+                <a href="../index.html">
+                    Home
+                </a>
+                <a href="../blogs/index.html">
+                    Blogs
+                </a>
+                <a href="../photos/index.html">
+                    Photos
+                </a>
+                <a href="../poems/index.html">
+                    Poems
+                </a>
+                <a href="../proses/index.html">
+                    Proses
+                </a>
+                <a href="#" onclick="return false;" onmousedown="autoScrollTo(&#39;About&#39;);">
+                    About
+                </a>
+            </div>
+        </div>
+        <div class="blog-container">
+            <h1>Flex &amp; Bison生成C++代碼教學</h1>
+<h2>什麼是 Flex &amp; Bison？</h2>
+<p>Flex &amp; Bison 是 GNU 開發的一套工具，用於生成可以處理結構化輸入的解析器。Flex 是一個分詞器，將輸入字符流分成標記。這些標記然後被發送到 Bison，它將根據特定的語法規則匹配它們，並相應地執行操作。</p>
+<h2>Flex &amp; Bison 和 C++</h2>
+<p>Flex &amp; Bison 已經存在了超過 40 年。當它們剛出生時，甚至沒有 C++。因此，它們最初只生成 C 中的解析器，其中包含許多全局變量，通常無法重用。不幸的是，即使它們現在正式支持 C++，大多數教程仍然使用 C 代碼。這就是為什麼我想做這個教程來幫助你切換到 C++。在這裡，我假設您已經掌握了基本用法，如果您沒有，請參考<a href="http://www.capsl.udel.edu/courses/cpeg421/2012/slides/Tutorial-Flex_Bison.pdf">這篇文章</a>。</p>
+<h2>設置驅動Driver</h2>
+<p>我們的解析器的大綱將如下所示。</p>
+<pre><code class="language-cpp">class Driver
+{
+public:
+    Driver();
+    ~Driver();
+
+    int parse();
+    int parse_file(std::string&amp; path);
+
+private:
+    Scanner*    scanner; // 由 Flex 生成
+    Parser*        parser;  // 由 Bison 生成
+    location*    location;// 用於跟蹤錯誤
+};
+</code></pre>
+<h2>設置Scanner</h2>
+<p>在這一部分中，我們將設置我們的 Flex 文件 <code>scanner.l</code>。</p>
+<pre><code class="language-cpp">%option nodefault
+%option debug
+%option noyywrap
+%option prefix=&quot;MyParser&quot;
+%option yylineno
+%option c++
+</code></pre>
+<p>首先，我們需要將上述選項放入我們的 Flex 文件中。它們的含義如下：</p>
+<ul>
+<li><code>nodefault</code>：讓 Flex 不生成默認標記。</li>
+<li><code>debug</code>：啓用調試信息。</li>
+<li><code>noyywrap</code>：即使讀取到 EOF，Flex 也會繼續運行。</li>
+<li><code>prefix</code>：生成的詞法分析器的特定命名空間。</li>
+<li><code>yylineno</code>：計算行號。</li>
+<li><code>c++</code>：要求 Flex 生成 C++ 詞法分析器。</li>
+</ul>
+<p>在此之後，我們可以定義我們的規則，如下所示。</p>
+<pre><code class="language-cpp">[0-9]{1,} return MyParser::Parser::make_NUM(atoi(yytext),loc);
+&quot;-&quot; return MyParser::Parser::make_MINUS(loc);
+&quot;+&quot; return MyParser::Parser::make_PLUS(loc);
+\n return MyParser::Parser::make_NEWLINE(loc);
+[ \t]+ /* ignore whitespace */
+. return MyParser::Parser::make_ILLEGAL(std::string(yytext),loc);
+</code></pre>
+<h2>設置Parser</h2>
+<p>這些選項需要放入 <code>parser.y</code> 中。</p>
+<pre><code class="language-plaintext">%locations
+%define api.namespace {MyParser}
+%define api.parser.class {Parser}
+%lex-param {MyParser::Driver &amp;driver}
+%parse-param {MyParser::Driver &amp;driver}
+%define parse.error verbose
+%language &quot;c++&quot;
+%define api.value.type variant
+%define api.token.constructor
+</code></pre>
+<p>它們的含義如下：</p>
+<ul>
+<li><code>location</code>：啓用位置跟蹤。</li>
+<li><code>parse.error verbose</code>：讓 Bison 生成詳細的錯誤消息。</li>
+<li><code>parse-param</code>：傳遞給 yyparse 的參數。</li>
+<li><code>lex-param</code>：傳遞給 yylex 的參數。</li>
+<li><code>language</code>：啓用位置跟蹤。</li>
+<li><code>variant</code>：使用 C++ variant 特性而不是 C 風格的聯合。</li>
+<li><code>constructor</code>：生成類似於我們在 <code>scanner.l</code> 中使用的 <code>make_PLUS</code> 的構造函數。</li>
+</ul>
+<p>然後，我們可以添加token和type。</p>
+<pre><code class="language-plaintext">%token NEWLINE PLUS MINUS 
+%token  NUM 
+%token END
+%token  ILLEGAL
+%type  EXPR    
+</code></pre>
+<p>我們可以為每個語法規則返回值類型。token的類型必須與 <code>scanner.l</code> 指定的規則匹配。</p>
+<h2>錯誤檢測和恢復</h2>
+<p>為了逐行讀取輸入，以便我們可以正確顯示錯誤消息。我們需要重新加載 <code>LexerInput</code>。</p>
+<p>cpp
+virtual size_t LexerInput( char* buf, size_t max_size );</p>
+<p>並且在讀取令牌或換行符到達時更新位置。</p>
+<p>cpp
+/* scanner.l */
+#define YY_USER_ACTION <br />
+{loc.columns(yyleng); <br />
+driver.scanner-&gt;current_col = <br />
+driver.scanner-&gt;current_col_end; <br />
+driver.scanner-&gt;current_col_end += yyleng;}</p>
+<p>/* parser.y */
+STATEMENT :
+{<br />
+printf(&quot;Enter expression:&quot;);
+}
+| STATEMENT EXPR NEWLINE
+{
+printf(&quot;The result is %f\n&quot;,$2);
+printf(&quot;Enter expression:&quot;);
+driver.location-&gt;lines();
+driver.location-&gt;step();
+driver.scanner-&gt;reset_current_col();
+}</p>
+<p>現在我們已經跟蹤了位置並緩衝了每行輸入。當出現錯誤時，Bison 將調用 <code>Parser::error()</code> 並停止解析。為了防止這種情況發生，我們可以利用一個特殊的規則 <code>error</code>，它將匹配所有未識別的標記。</p>
+<pre><code class="language-cpp">/* Error display */
+void Parser::error
+    (const location&amp; loc, const std::string&amp; m)
+{
+    size_t current_col 
+        = driver.scanner-&gt;current_col;
+    std::cout&lt;&lt; &quot;line &quot; &lt;&lt;loc&lt;&lt; &quot;: &quot; &lt;&lt;m&lt;&lt; &quot;\n&quot;;
+    fprintf(stderr,&quot;\t%s\t&quot;,
+        driver.scanner-&gt;current_line.c_str());
+    for(int i = 0; i &lt; current_col; i++)
+        fprintf(stderr,&quot;~&quot;);
+    fprintf(stderr,&quot;^\n&quot;);
+    }
+
+/* Error recovery */
+| STATEMENT error NEWLINE
+{
+    driver.location-&gt;lines();
+    driver.location-&gt;step();
+    driver.scanner-&gt;reset_current_col();
+    printf(&quot;Enter expression:&quot;);
+}
+</code></pre>
+<p>錯誤消息將會是這樣的。</p>
+<pre><code class="language-plaintext">Enter expression:12+6-0&amp;+66
+line 1.1-7: syntax error, unexpected ILLEGAL, expecting NEWLINE
+    12+6-0&amp;+66
+    ~~~~~~^
+Enter expression:
+</code></pre>
+<h2>代碼下載</h2>
+<p>更多細節和完整的代碼，你可以查看我的 <a href="https://github.com/TerenceNg03/Flex-Bison-Full-Cpp-Example">Github 倉庫</a>。</p>
+
+        </div>
+        <div class="footer-container">
+            <div class="footer">
+                <div class="quote">
+                    <p>
+                        永遠太遠 · 無謂太早 · 分對或錯
+                    </p>
+                </div>
+                <div class="footer-inner" id="About">
+                    <div class="copyright">
+                        Original Photos &amp; Contents
+                    </div>
+                    <div class="copyright">
+                        Copyright ©2021-2023 TerenceNg  All Rights Reserved.
+                    </div>
+                </div>
+                <div class="contact-me">
+                    <a href="https://github.com/TerenceNg03">
+                        Github Profile
+                    </a>
+                    |
+                    <a href="stoicism03@gmail.com">
+                        Contact Me
+                    </a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE HTML>
+
+<html>
+    <head>
+        <title>
+             Introduction to Monad Transformers
+        </title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../css/common/common.css">
+        <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="../favicon/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="../favicon/favicon-16x16.png">
+        <link rel="manifest" href="../favicon/site.webmanifest">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js">
+            
+        </script>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="../css/blogs.css">
+        <link rel="stylesheet" href="../data/blogs/highlight/styles/default.min.css">
+        <script src="../data/blogs/highlight/highlight.min.js">
+            
+        </script>
+        <script src="../data/blogs/highlight/languages/haskell.min.js">
+            
+        </script>
+        <script src="../data/blogs/catalog.js" defer="">
+            
+        </script>
+    </head>
+    <body>
+        <div class="head-title">
+            <div class="logo-ani">
+                Terence Ng
+            </div>
+            <div class="cata">
+                <span class="head-split">
+                    |
+                </span>
+                <span class="head-part">
+                    Blogs
+                </span>
+            </div>
+        </div>
+        <div class="navbar-container">
+            <script>
+                function autoScrollTo(el) {    var top = $("#" + el).offset().top;    $("html, body").animate({ scrollTop: top }, 1000);    }
+            </script>
+            <div class="navbar">
+                <a href="../index.html">
+                    Home
+                </a>
+                <a href="../blogs/index.html">
+                    Blogs
+                </a>
+                <a href="../photos/index.html">
+                    Photos
+                </a>
+                <a href="../poems/index.html">
+                    Poems
+                </a>
+                <a href="../proses/index.html">
+                    Proses
+                </a>
+                <a href="#" onclick="return false;" onmousedown="autoScrollTo(&#39;About&#39;);">
+                    About
+                </a>
+            </div>
+        </div>
+        <div class="blog-container">
+            <h1>Introduction to Monad Transformers</h1>
+<p>Before we start, I want to use an example to illustrate why monad transformer is introduced and what problem it is trying to solve.</p>
+<h2>Monad Stack</h2>
+<p>Sometimes we have some basic monads like <code>IO</code>, <code>Maybe</code> and <code>State</code>. Each of them handles their own stuff. But what if I want to return something might not exists in a <code>State</code> monad? Intuitively, we will write something like this.</p>
+<pre><code class="language-haskell">run :: State (Maybe String) Int
+run = do
+    s1 &lt;- get
+    case s1 of
+        Nothing -&gt; ...
+        Just x -&gt; do
+            put $ Just &quot;abcde&quot;
+            s2 &lt;- get
+            case s2 of
+                Nothing -&gt; ...
+                Just x' -&gt; ...
+</code></pre>
+<p>But the problem is every time we try to get the state, we have to do a pattern matching. The code is purely boilerplate because we already have <code>Maybe</code> monad to continue calculation only if there is something. We want something that can combine the powers of different monads together. And that is what I am talking about today, monad transformers.</p>
+<h2>What is a Monad Transformer</h2>
+<p>A monad transformer is a <code>Monad</code> while is also being an instance of class <code>MonadTrans</code>. Let us take a look of their type signatures first.</p>
+<pre><code class="language-haskell">class Applicative m =&gt; Monad m where
+    return :: a -&gt; m a
+    (&gt;&gt;=) :: m a -&gt; (a -&gt; m b) -&gt; m b
+
+class MonadTrans (t :: (* -&gt; *) -&gt; * -&gt; *) where
+    lift :: Monad m =&gt; m a -&gt; t m a
+</code></pre>
+<p>You may see that <code>MonadTrans</code> takes a <code>* -&gt; *</code> and a <code>*</code> then gives us a real <code>Type</code>. It only has only method called <code>lift</code> which is very interesting. It takes a monad <code>m</code> (corresponding to <code>* -&gt; *</code>) then wrapped it into it self (<code>t</code>) so we get a <code>t m a</code>.</p>
+<p>Typically, a monad transformer is also a monad. Which means we can do this</p>
+<pre><code class="language-haskell">run = do 
+    config &lt;- ask
+    lift $ print config
+</code></pre>
+<p>This piece of code will <code>lift</code> a <code>Reader</code> into an <code>IO</code> monad while let us easily get what is inside the monad. Wonderful!</p>
+<h2>Implement ReaderT</h2>
+<p><code>ReaderT</code> is a very simple monad transformer. It takes a <strong>read-only config</strong> and pass along the monad while allow you to query the config with <code>ask</code>.</p>
+<pre><code class="language-haskell">import Control.Monad.Trans (MonadTrans, lift)
+
+newtype ReaderT r m a = ReaderT {runReaderT :: r -&gt; m a}
+
+instance Functor m =&gt; Functor (ReaderT r m) where
+    fmap f rt = ReaderT $ fmap f . runReaderT rt
+
+instance (Applicative m) =&gt; Applicative (ReaderT r m) where
+    pure x = ReaderT $ const (pure x)
+    f &lt;*&gt; rt = ReaderT $ 
+        \r -&gt; runReaderT f r &lt;*&gt; runReaderT rt r
+
+instance (Monad m) =&gt; Monad (ReaderT r m) where
+    return = pure
+    rt &gt;&gt;= f = ReaderT $
+        \r -&gt; runReaderT rt r &gt;&gt;= (flip runReaderT r &lt;$&gt; f)
+
+instance MonadTrans (ReaderT r) where
+    lift m = ReaderT $ const m
+</code></pre>
+<p>And we need to implement something to get our <code>r</code> out.</p>
+<pre><code class="language-haskell">ask :: (Monad m) =&gt; ReaderT r m r
+ask = ReaderT return
+</code></pre>
+<p>Sometimes we just want use a single <code>Reader</code>, so let us make <code>Reader</code> be an type alias for apply <code>ReaderT</code> on the <code>Identity</code> monad.</p>
+<pre><code class="language-haskell">import Control.Monad.Identity (Identity)
+type Reader r = ReaderT r Identity
+</code></pre>
+<h2>Using a ReaderT</h2>
+<p>Now that we have <code>ReaderT</code> defined, it is time to experiment with it a little bit.</p>
+<pre><code class="language-haskell">run :: ReaderT Int (State String) ()
+run = do
+    lift $ put &quot;Hello&quot;
+    config &lt;- ask
+    case config of
+        0 -&gt; return ()
+        n -&gt; lift $ modify (++ replicate n 'a')
+</code></pre>
+<p>As you can see, we are able to read our config anywhere in the do notation block. But the cost is we have to put a lift at everything else which almost make our <code>ReaderT</code> unusable. Is there a way to improve this?</p>
+<h2>THe MonadX Class</h2>
+<p>The most oblivious solution is make an alias for <code>lift put</code>.</p>
+<pre><code class="language-haskell">putLifted = lift put
+putLiftedLifted = lift putLifted
+putLiftedLiftedLifted = lift putLiftedLifted
+</code></pre>
+<p>Quite tedious, right?</p>
+<p>Let us check what <code>put</code> really is.</p>
+<pre><code class="language-haskell">class Monad m =&gt; MonadState s m | m -&gt; s where
+    -- | Replace the state inside the monad.
+    put :: s -&gt; m ()
+    ...
+</code></pre>
+<p>So <code>put</code> is actually a method for class <code>MonadState</code> and may return any monad <code>m ()</code> as a result. In order to make put return what we want, we shall make any <code>MonadState</code> wrapped in <code>ReaderT</code> also an instance of <code>MonadState</code>.</p>
+<pre><code class="language-haskell">{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE UndecidableInstances #-}
+
+instance MonadState s m =&gt; MonadState s (ReaderT r m) where
+    get = lift get
+    put s = lift $ put s
+
+run' :: ReaderT Int (State String) ()
+run' = do
+    put &quot;Hello&quot;
+    config &lt;- ask
+    case config of
+        0 -&gt; return ()
+        n -&gt; modify (++ replicate n 'a')
+</code></pre>
+<p>Before we move on and write a <code>MonadReader</code> for our <code>ReaderT</code>. I want to explain a little what does <code>| m -&gt; s</code> means in the class definition.</p>
+<p>The <code>m -&gt; s</code> is called a <strong>functional dependency</strong> in haskell. It tells <code>ghc</code> that if there is a <code>m</code> then there has and only has one <code>s</code> that makes <code>MonadState s m</code> being a valid instance. So <code>ghc</code> will not try to infer what <code>s</code> is once it knows what <code>m</code> is. This is like to tell <code>ghc</code> that I have a lemma that shows <code>m -&gt; s</code>, and then <code>ghc</code> will try to prove and use this lemma when it checks your type. Otherwise in some situation when <code>s</code> can not be inferred, <code>ghc</code> will simply throw an error says it does not know what <code>s</code> is.</p>
+<p>Ok, enough for theories, let us code. We need to move our <code>ask</code> into <code>MonadReader</code> so if someone is use <code>EitherT String (Reader String) ()</code>, they do not need to <code>lift</code> the <code>ask</code> as well.</p>
+<pre><code class="language-haskell">{-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE FlexibleInstances #-}
+
+class Monad m =&gt; MonadReader r m | m -&gt; r where
+    ask :: m r
+    ask = reader id
+
+    reader :: (r -&gt; a) -&gt; m a
+    reader f = ask &gt;&gt;= \r -&gt; return (f r)
+
+-- Make `ReaderT` a `MonadReader`
+instance Monad m =&gt; MonadReader r (ReaderT r m)
+    ask = ReaderT return
+</code></pre>
+<p>For any monad transformer we want to stack on <code>ReaderT</code>, we may simply make it an instance of <code>MonadReader</code>. Then <code>ghc</code> will automatically <code>lift</code> them for us.</p>
+
+        </div>
+        <div class="footer-container">
+            <div class="footer">
+                <div class="quote">
+                    <p>
+                        永遠太遠 · 無謂太早 · 分對或錯
+                    </p>
+                </div>
+                <div class="footer-inner" id="About">
+                    <div class="copyright">
+                        Original Photos &amp; Contents
+                    </div>
+                    <div class="copyright">
+                        Copyright ©2021-2023 TerenceNg  All Rights Reserved.
+                    </div>
+                </div>
+                <div class="contact-me">
+                    <a href="https://github.com/TerenceNg03">
+                        Github Profile
+                    </a>
+                    |
+                    <a href="stoicism03@gmail.com">
+                        Contact Me
+                    </a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

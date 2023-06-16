@@ -1,0 +1,43 @@
+@import "nav.css";
+@import "logo.css";
+@import "footer.css";
+
+@media only screen and (max-width: 600px) {
+    body {
+        font-size: 3vw;
+    }
+
+    .footer-container .footer {
+        padding-left: 0em;
+        padding-right: 0em;
+    }
+
+    .navbar-container .navbar {
+        padding-left: 2em;
+        padding-right: 2em;
+    }
+
+    .navbar-container .navbar a {
+        padding: 0.85em 0.5em;
+    }
+
+    .logo {
+        font-size: 10vw;
+    }
+
+    .logo-ani {
+        font-size: 9vw;
+    }
+
+    .cata .head-part {
+        font-size: 8vw;
+    }
+
+    .cata .head-split {
+        font-size: 12vw;
+    }
+}
+
+body {
+	font-family: Simsun;
+}

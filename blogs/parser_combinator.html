@@ -1,0 +1,243 @@
+<!DOCTYPE HTML>
+
+<html>
+    <head>
+        <title>
+             Write me a Parser Combinator
+        </title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../css/common/common.css">
+        <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="../favicon/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="../favicon/favicon-16x16.png">
+        <link rel="manifest" href="../favicon/site.webmanifest">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js">
+            
+        </script>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="../css/blogs.css">
+        <link rel="stylesheet" href="../data/blogs/highlight/styles/default.min.css">
+        <script src="../data/blogs/highlight/highlight.min.js">
+            
+        </script>
+        <script src="../data/blogs/highlight/languages/haskell.min.js">
+            
+        </script>
+        <script src="../data/blogs/catalog.js" defer="">
+            
+        </script>
+    </head>
+    <body>
+        <div class="head-title">
+            <div class="logo-ani">
+                Terence Ng
+            </div>
+            <div class="cata">
+                <span class="head-split">
+                    |
+                </span>
+                <span class="head-part">
+                    Blogs
+                </span>
+            </div>
+        </div>
+        <div class="navbar-container">
+            <script>
+                function autoScrollTo(el) {    var top = $("#" + el).offset().top;    $("html, body").animate({ scrollTop: top }, 1000);    }
+            </script>
+            <div class="navbar">
+                <a href="../index.html">
+                    Home
+                </a>
+                <a href="../blogs/index.html">
+                    Blogs
+                </a>
+                <a href="../photos/index.html">
+                    Photos
+                </a>
+                <a href="../poems/index.html">
+                    Poems
+                </a>
+                <a href="../proses/index.html">
+                    Proses
+                </a>
+                <a href="#" onclick="return false;" onmousedown="autoScrollTo(&#39;About&#39;);">
+                    About
+                </a>
+            </div>
+        </div>
+        <div class="blog-container">
+            <h1>Write me a Parser Combinator</h1>
+<p>In previous articles I have talked about using <code>flex &amp; bison</code> to generate a parser. However, such parsers are known to suffer from a series of problems. The first is that they are almost impossible to debug and test. In practice, we want to test our parser in small units and thus can locate bugs precisely. Another common issue is let parser generator to generate code makes compiling more complex (especially for languages like <code>C++</code>) and the user is forced to learn their own APIs which can be very tedious.</p>
+<h2>So, What is a parser combinator?</h2>
+<p>Parser combinator is a <code>Monad</code> in a nut shell, which also implies it is an instance of <code>Functor</code> and <code>Applicative</code>. It allows us to combine small and simple parsers into large and complex parsers and does not require to write any syntax/grammar files. For example, in order to recognize an identifier with parser combinators, we may do:</p>
+<pre><code class="language-haskell">charP :: (Char -&gt; Bool) -&gt; Parser Char
+charP = undefined -- detail omitted here
+
+repeatP :: Parser a -&gt; Parser [a]
+repeatP = undefined --detail omitted here
+
+identP :: Parser String
+identP = liftA2 (:) startP $ repeatP bodyP
+    where bodyP = charP $ not . isSpace
+          startP = charP isLetter
+</code></pre>
+<h2>Ok, Show me how to do it.</h2>
+<p>Like most <code>Monad</code>s, let us start by defining a <code>Parser</code> as <strong>an wrapped lambda function</strong> that turns a <code>String</code> into a tuple of the remained string and parsed data (of type <code>a</code>).</p>
+<p>Note: we will write a simple <code>BaseParser</code> that does not handle errors at all. The real <strong><code>Parser</code></strong> will be defined later.</p>
+<pre><code class="language-haskell">newtype BaseParser a = BaseParser 
+    {runBaseParser :: String -&gt; (String, a)}
+</code></pre>
+<p>Now let us make it a <code>Functor</code>.</p>
+<pre><code class="language-haskell">instance Functor BaseParser where
+    fmap f p = BaseParser $ \s -&gt;
+        let (s', a) = runBaseParser p s
+         in (s', f a)
+</code></pre>
+<p>As you may see, we are now able to transform <code>BaseParser a</code> into <code>BaseParser b</code>, yet we still can not combine two parser which is required to parser context free grammar (CFG). And that is why we must make it an <code>Applicative</code>. Note that although <code>Applicative</code> is enough to handle any context free grammar (CFG), we may be interested in something more powerful in order to parse context sensitive grammar (CSG). This requires us to make our <code>Parser</code> a <code>Monad</code>.</p>
+<pre><code class="language-haskell">{-# LANGUAGE TupleSections #-}
+import Control.Monad (ap)
+
+instance Applicative BaseParser where
+    pure a = BaseParser (,a)
+    (&lt;*&gt;) = ap
+
+instance Monad BaseParser where
+    return = pure
+    p &gt;&gt;= f = BaseParser $ \s -&gt;
+        let (s', a) = runBaseParser p s
+         in runBaseParser (f a) s'
+</code></pre>
+<p>And that is it, you now have a working parser combinator with about 20 lines of code.</p>
+<h2>But What about Error Handling?</h2>
+<p>Our <code>BaseParser</code> definition says nothing about error handling, but it doesn't means we can not handle errors outside <code>BaseParser</code> with a <strong>monad transformer</strong>.</p>
+<pre><code class="language-haskell">{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+import Control.Monad.Except (ExceptT)
+
+newtype Parser a = Parser (ExceptT String BaseParser a)
+    deriving (Functor, Applicative, Monad)
+</code></pre>
+<p>And that is all the codes we need.</p>
+<h2>Combining &quot;or&quot; parsers</h2>
+<p><code>Applicative</code> and <code>Monad</code> allows us to combine several parser together so that we can parse a sequence. But what about &quot;vertically&quot; combine? If we are parsing something like <code>json</code>, we probably want to try to parse a <strong>number</strong> or a <strong>string</strong> or an <strong>array</strong> together. For such requirement, we would introduce a new operator for <code>Parser</code>.</p>
+<pre><code class="language-haskell">import Control.Monad.Except (ExceptT (ExceptT))
+import Control.Monad.Trans.Except (runExceptT)
+
+parser :: (String -&gt; (String, Either String a)) -&gt; Parser a
+parser = Parser . ExceptT . BaseParser
+
+runParser :: Parser a -&gt; String -&gt; (String, Either String a)
+runParser (Parser p)= runBaseParser . runExceptT $ p
+
+(&lt;|&gt;) :: Parser a -&gt; Parser a -&gt; Parser a
+p1 &lt;|&gt; p2 = parser $ \s -&gt;
+    case runParser p1 s of
+        (_, Left _) -&gt; runParser p2 s
+        a -&gt; a
+</code></pre>
+<h2>Some commonly used parser</h2>
+<p>Now our parser is ready to parse anything. I here by gives some examples to illustrate how to use it. You can also check out <a href="https://github.com/TerenceNg03/Seml/">my Seml Github Repo</a> which parse S-Expressions into XML.</p>
+<h3>Char Parser</h3>
+<p>Start with a parser that can parse only one character.</p>
+<pre><code class="language-haskell">charP :: (Char -&gt; Bool) -&gt; Parser Char
+charP f = parser $ \s -&gt;
+    case s of
+        (x : xs)
+            | f x -&gt; (xs, Right x)
+            | otherwise -&gt; (s, Left &quot;Invalid Char&quot;&quot;)
+        [] -&gt; (s, Left &quot;Eof Error&quot;)
+
+isP :: Char -&gt; Parser Char
+isP c = charP (== c)
+</code></pre>
+<h3>Repeat Parser</h3>
+<p>Now we would like to parse an identifier. To do this we need to repeat <code>charP</code> for <code>n</code> times.</p>
+<pre><code class="language-haskell">import Control.Applicative (liftA2)
+import Data.Char (isAlphaNum, isLetter)
+
+someP :: Parser a -&gt; Parser [a]
+someP p = liftA2 (:) p (manyP p)
+
+-- Be careful here we do not want to stuck
+-- on an empty string
+manyP :: Parser a -&gt; Parser [a]
+manyP p = terminateP &lt;|&gt; someP p &lt;|&gt; return []
+
+terminateP :: Parser [a]
+terminateP = parser $ \s -&gt;
+    case s of
+        [] -&gt; ([], Right [])
+        _ -&gt; (s, Left &quot;&quot;)
+
+-- | Repeat a parser
+repeatP :: Parser a -&gt; Parser [a]
+repeatP = manyP
+
+-- | Recognize an identifier
+identP :: Parser String
+identP = liftA2 (:) (charP isLetter) $
+    repeatP $ charP isAlphaNum
+</code></pre>
+<p>Note that even though we have handled empty string here, <strong>repeat a parser that accepts an empty string</strong> will still cause <strong>an infinite loop</strong>. Be aware!</p>
+<h3>Between Parser</h3>
+<p>Ok, we can parse an identifier. But what about parse a quoted string?</p>
+<pre><code class="language-haskell">-- | Parse something between other things
+betweenP :: Parser l -&gt; Parser r -&gt; Parser mid -&gt; Parser mid
+betweenP l r m = l *&gt; m &lt;* r
+
+-- Simplified escape handling, we just return what ever 
+-- character that is escaped and do not translate 
+-- `\n` into newline or etc.
+escapeSP :: Parser Char
+escapeSP = isP '\\' *&gt; charP (const True)
+
+quotedP :: Parser String
+quotedP =
+    let ssP = repeatP (escapeSP &lt;|&gt; charP (/= '\''))
+        dsP = repeatP (escapeSP &lt;|&gt; charP (/= '&quot;'))
+        singleP = betweenP (isP '\'') (isP '\'') ssP
+        doubleP = betweenP (isP '&quot;') (isP '&quot;') dsP
+     in singleP &lt;|&gt; doubleP
+</code></pre>
+<h3>Separated by Parser</h3>
+<p>Say we have a list of words separated by some random spaces. How do we parse such things?</p>
+<pre><code class="language-haskell">-- | Repeat parser with separator
+sepByP :: Parser s -&gt; Parser a -&gt; Parser [a]
+sepByP ps pa = liftA2 (:) pa (repeatP (ps *&gt; pa))
+
+spaceP :: Parser String
+spaceP = repeatP (charP isSpace)
+
+wordsP :: Parser [String]
+wordsP = sepByP spaceP identP
+</code></pre>
+
+        </div>
+        <div class="footer-container">
+            <div class="footer">
+                <div class="quote">
+                    <p>
+                        永遠太遠 · 無謂太早 · 分對或錯
+                    </p>
+                </div>
+                <div class="footer-inner" id="About">
+                    <div class="copyright">
+                        Original Photos &amp; Contents
+                    </div>
+                    <div class="copyright">
+                        Copyright ©2021-2023 TerenceNg  All Rights Reserved.
+                    </div>
+                </div>
+                <div class="contact-me">
+                    <a href="https://github.com/TerenceNg03">
+                        Github Profile
+                    </a>
+                    |
+                    <a href="stoicism03@gmail.com">
+                        Contact Me
+                    </a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

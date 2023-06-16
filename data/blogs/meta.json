@@ -1,0 +1,27 @@
+[
+    {
+        "title_en": "Flex & Bison Cpp Tutorial",
+        "title_cn": "Flex & Bison生成C++代碼教學",
+        "ref_id": "flex_bison_cpp"
+    },
+    {
+        "title_en": "Virtual Function - Good or Bad",
+        "title_cn": "C++虛函數的性能問題",
+        "ref_id": "virtual_functioin_cpp"
+    },
+    {
+        "title_en": "Functional Programming in C++",
+        "title_cn": "C++的函數式特性",
+        "ref_id": "fp_cpp"
+    },
+    {
+        "title_en": "Write me a Parser Combinator",
+        "title_cn": "來寫一個Parser Combinator",
+        "ref_id": "parser_combinator"
+    },
+    {
+        "title_en": "Introduction to Monad Transformers",
+        "title_cn": "Monad Transformers 簡介",
+        "ref_id": "monad_transformer"
+    }
+]
