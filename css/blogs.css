@@ -131,12 +131,10 @@ pre > code {
 }
 
 code {
-	background-color: #DEDEDE;
-	color: #4D4D4D;
-	border-radius: 0.2em;
-	padding-left: 0.3em;
-	padding-right: 0.3em;
-	padding: 0.05em 0.3em;
+	background-color: #E0E0E0;
+	color: black;
+	border-radius: 0.3em;
+	padding: 0.2em 0.3em;
 }
 
 ul {
