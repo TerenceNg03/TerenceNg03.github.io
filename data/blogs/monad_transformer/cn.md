@@ -161,6 +161,7 @@ class Monad m => MonadReader r m | m -> r where
 
 -- 將 `ReaderT` 變為 `MonadReader` 的實例
 instance Monad m => MonadReader r (ReaderT r m)
+    ask = ReaderT return
 ```
 
 對於我們想要堆疊在 `ReaderT` 上的任何單子變換器，我們只需要將其變為 `MonadReader` 的一個實例。然後 `ghc` 就會自動為我們 `lift` 它們。

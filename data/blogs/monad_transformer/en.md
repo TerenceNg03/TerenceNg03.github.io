@@ -160,6 +160,7 @@ class Monad m => MonadReader r m | m -> r where
 
 -- Make `ReaderT` a `MonadReader`
 instance Monad m => MonadReader r (ReaderT r m)
+    ask = ReaderT return
 ```
 
 For any monad transformer we want to stack on `ReaderT`, we may simply make it an instance of `MonadReader`. Then `ghc` will automatically `lift` them for us.
